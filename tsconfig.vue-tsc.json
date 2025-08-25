@@ -5,8 +5,14 @@
       "src/**/*.d.ts",
       "src/**/*.vue",
     ],
-    "exclude": ["src/**/*.test.ts"],
+    "exclude": ["src/**/*.test.ts", "tests", "node_modules"],
     "vueCompilerOptions": {
       "target": 2.7
+    },
+    "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "skipLibCheck": true,
+    "types": ["vite/client"]
     }
+
   }

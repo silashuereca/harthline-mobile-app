@@ -28,5 +28,5 @@ import {
   IonToolbar,
 } from "@ionic/vue";
 
-import ExploreContainer from "@/components/ExploreContainer.vue";
+import ExploreContainer from "../components/ExploreContainer.vue";
 </script>
