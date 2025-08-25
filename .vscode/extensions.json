@@ -1,7 +1,5 @@
 {
-    "recommendations": [
-        "Webnative.webnative",
-        "dbaeumer.vscode-eslint",
-        "denoland.vscode-deno"
-    ]
+  "recommendations": [
+    "denoland.vscode-deno"
+  ]
 }
