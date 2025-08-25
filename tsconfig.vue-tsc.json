@@ -1,0 +1,12 @@
+{
+    "extends": "./tsconfig.json",
+    "include": [
+      "src/**/*.ts",
+      "src/**/*.d.ts",
+      "src/**/*.vue",
+    ],
+    "exclude": ["src/**/*.test.ts"],
+    "vueCompilerOptions": {
+      "target": 2.7
+    }
+  }
