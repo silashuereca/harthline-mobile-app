@@ -16,7 +16,7 @@ jobs:
         node-version: 22
 
     - name: Install Node.js dependencies
-      run: npm install --frozen-lockfile
+      run: npm ci
 
     - run: npm run lint
 
