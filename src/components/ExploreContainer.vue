@@ -7,7 +7,10 @@
 
 <script setup lang="ts">
 defineProps({
-  name: String,
+  name: {
+    default: "",
+    type: String,
+  },
 });
 </script>
 

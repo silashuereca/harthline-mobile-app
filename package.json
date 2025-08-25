@@ -7,9 +7,19 @@
     "dev": "vite",
     "build": "vue-tsc && vite build",
     "preview": "vite preview",
-    "test:e2e": "cypress run",
     "test:unit": "vitest",
-    "lint": "eslint ."
+    "lint": "eslint --ext .ts,.vue src",
+    "lint-fix": "eslint --fix '**/*.{js,ts,vue}'",
+    "migration-generate": "supabase db diff --use-migra -f",
+    "migration-new": "supabase migration new",
+    "migration-run": "supabase migration up",
+    "gen:types": "npx supabase gen types typescript --local | sed '1s;^;/* eslint-disable no-unused-vars */\\n\\n;' > supabase/functions/_shared/database-types.ts && npm run lint-fix",
+    "deploy-migration": "supabase db push",
+    "watch-functions": "supabase functions serve",
+    "create-function": "supabase functions new",
+    "deploy-functions": "supabase functions deploy",
+    "deploy-all": "supabase functions deploy && supabase db push",
+    "db-start": "supabase start"
   },
   "dependencies": {
     "@capacitor/app": "7.0.2",
