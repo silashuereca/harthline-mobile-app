@@ -8,7 +8,7 @@
 
 
         <!-- Google login button -->
-        <IonButton expand="block" size="medium" @click="simulateGoogleSignIn">
+        <IonButton expand="block" @click="onGoogle()">
           <IonIcon class="dark:text-white" :icon="logoGoogle" />
           <span class="pl-2 dark:text-white">Continue with Google</span>
         </IonButton>
@@ -21,10 +21,22 @@
 <script setup lang="ts">
 import { IonButton, IonContent, IonIcon, IonPage } from "@ionic/vue";
 import { logoGoogle } from "ionicons/icons";
+
+import { useAuth } from "../composables/useAuth";
+
+const OAUTH_REDIRECT = "harthline://auth/callback";
+const { signInWithGoogle } = useAuth();
 // No router nav while styling
-const simulateGoogleSignIn = () => {
-  //will need to implement Google Sign-In functionality for supabase
-  console.log("Hello??");
+const onGoogle = async () => {
+  try {
+    // Open via system browser for native OAuth
+    await signInWithGoogle(OAUTH_REDIRECT);
+    // Supabase SDK will open the browser; we don't push routes here.
+    // The deep link handler in main.ts will complete the sign-in.
+  } catch (e) {
+    console.error(e);
+    // optional: toast error
+  }
 };
 </script>
 
