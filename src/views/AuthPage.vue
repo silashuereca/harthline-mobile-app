@@ -24,6 +24,7 @@ import { logoGoogle } from "ionicons/icons";
 // No router nav while styling
 const simulateGoogleSignIn = () => {
   //will need to implement Google Sign-In functionality for supabase
+  console.log("Hello??");
 };
 </script>
 
