@@ -5,9 +5,17 @@ import { supabase } from "../supabase";
 
 const routes: Array<RouteRecordRaw> = [
   { path: "/", redirect: "/auth" },
-  { component: () => import("../views/AuthPage.vue"), path: "/auth" },
+  {
+    component: () => import("../views/AuthPage.vue"),
+    name: "auth",
+    path: "/auth",
+  },
   // simple "you’re logged in" page with a Logout button
-  { component: () => import("../views/HomePage.vue"), path: "/app" },
+  {
+    component: () => import("../views/HomePage.vue"),
+    name: "home",
+    path: "/app",
+  },
 ];
 
 const router = createRouter({
@@ -23,12 +31,19 @@ router.beforeEach(async (to) => {
   console.log("Full path", to.fullPath);
 
   // If not authed, force to /auth
+  console.log("IsAuthed", isAuthed);
 
-  if (!isAuthed) {
-    return "/auth";
-  } else if (isAuthed && to.path === "/auth") {
-    return "/app";
+  // 1) Not authed → only redirect if they're trying to leave /auth
+  if (!isAuthed && to.path !== "/auth") {
+    return { path: "/auth", replace: true };
   }
+
+  // 2) Authed → keep them out of /auth
+  if (isAuthed && to.path === "/auth") {
+    return { path: "/app", replace: true };
+  }
+
+  return true;
 });
 
 export default router;
