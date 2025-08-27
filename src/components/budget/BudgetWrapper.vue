@@ -12,6 +12,19 @@
           <span v-text="readableMonthYear(state.selectedMonth)" />
         </IonButton>
       </IonToolbar>
+      <div class="w-full flex items-center justify-center">
+        <IonSegment value="planned">
+          <IonSegmentButton value="planned">
+            <IonLabel>Planned</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="spent">
+            <IonLabel>Spent</IonLabel>
+          </IonSegmentButton>
+          <IonSegmentButton value="remaining">
+            <IonLabel>Remaining</IonLabel>
+          </IonSegmentButton>
+        </IonSegment>
+      </div>
     </IonHeader>
 
     <IonModal id="example-modal" ref="modal" trigger="open-custom-dialog">
@@ -23,22 +36,6 @@
         />
       </div>
     </IonModal>
-
-
-
-    <div class="w-full flex items-center justify-center">
-      <IonSegment value="planned">
-        <IonSegmentButton value="planned">
-          <IonLabel>Planned</IonLabel>
-        </IonSegmentButton>
-        <IonSegmentButton value="spent">
-          <IonLabel>Spent</IonLabel>
-        </IonSegmentButton>
-        <IonSegmentButton value="remaining">
-          <IonLabel>Remaining</IonLabel>
-        </IonSegmentButton>
-      </IonSegment>
-    </div>
   </div>
 </template>
 
@@ -55,7 +52,6 @@ import {
 } from "@ionic/vue";
 import { DateTime } from "luxon";
 import { onMounted, reactive, ref } from "vue";
-import { useRoute } from "vue-router";
 
 import {
   BudgetExpenseApi,
@@ -86,8 +82,6 @@ const modal = ref();
 const budgetMonthApi: BudgetMonthApi = new BudgetMonthApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const expenseApi: BudgetExpenseApi = new BudgetExpenseApi();
-const route = useRoute();
-const houseId = route.params.houseId as string;
 const state: TState = reactive({
   budgetExpenses: [],
   budgetItemGroups: [],
@@ -102,7 +96,6 @@ const state: TState = reactive({
 });
 
 onMounted(() => {
-  console.log("House Id", houseId);
   setDefaultDate();
 });
 
@@ -111,11 +104,12 @@ async function setDefaultDate(): Promise<void> {
   const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   state.selectedMonth = firstOfMonth;
   state.loading.budgetMonth = true;
+
   try {
     const month = getMonthString(state.selectedMonth);
     const result = await budgetMonthApi.getBudgetMonth({
       month,
-      monthId: route.params.id as string,
+      monthId: null,
     });
     if (result) {
       state.budgetMonth = result;
@@ -128,14 +122,6 @@ async function setDefaultDate(): Promise<void> {
       state.budgetItemGroups = groupBudgetItems(items);
       state.selectedMonth = DateTime.fromISO(result.month_start).toJSDate();
       console.log("State", state);
-      // router.replace({
-      //   name: "budget-month",
-      //   params: { id: result.id },
-      // });
-    } else {
-      // router.replace({
-      //   name: "budget",
-      // });
     }
   } finally {
     state.loading.budgetMonth = false;
@@ -146,33 +132,67 @@ function jsDateToIonMonthYear(
   date: Date,
   opts?: { asUTC?: boolean; fallbackFullDate?: boolean },
 ) {
-  const dt = (
+  const datetime = (
     opts?.asUTC ? DateTime.fromJSDate(date).toUTC() : DateTime.fromJSDate(date)
   ).startOf("month");
   // Primary: "YYYY-MM" (month-year only)
-  const monthYear = dt.toFormat("yyyy-LL");
+  const monthYear = datetime.toFormat("yyyy-LL");
   if (!opts?.fallbackFullDate) return monthYear;
 
-  // Fallback: full ISO date at first of month ("YYYY-MM-01")
-  return dt.toISODate(); // e.g., "2025-08-01"
+  // Fallback
+  return datetime.toISODate(); // e.g., "2025-08-01"
 }
 
 function getMonthString(date: Date): string {
   return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
 }
 
-function readableMonthYear(d?: Date) {
-  return d
+function readableMonthYear(date?: Date) {
+  return date
     ? new Intl.DateTimeFormat("en-US", {
         month: "long",
         year: "numeric",
-      }).format(d)
+      }).format(date)
     : "";
 }
 
-function selectMonth(selected: any): void {
-  // const selectedDate = selected.detail.value;
-  // state.selectedMonth = selectedDate;
+async function selectMonth(selected: any): Promise<void> {
+  try {
+    state.loading.budgetMonth = true;
+    const monthYearString = selected.detail.value;
+    const selectedMonth: Date = monthYearToDate(monthYearString);
+    state.selectedMonth = selectedMonth;
+    const selectedMonthString =
+      DateTime.fromJSDate(selectedMonth).toFormat("yyyy-MM-dd");
+    const result = await budgetMonthApi.getBudgetMonth({
+      month: selectedMonthString,
+    });
+    if (result) {
+      state.budgetMonth = result;
+      fetchBudgetItems();
+      return;
+    }
+
+    state.budgetMonth = null;
+    state.budgetItems = [];
+  } finally {
+    state.loading.budgetMonth = false;
+  }
+}
+
+async function fetchBudgetItems(): Promise<void> {
+  const result = await budgetItemApi.getBudgetItems(state.budgetMonth.id);
+  const expenses = await expenseApi.getAllMonthlyExpenses({
+    budgetMonthId: state.budgetMonth.id,
+  });
+  state.budgetExpenses = expenses;
+  state.budgetItems = result;
+  state.budgetItemGroups = groupBudgetItems(result);
+}
+
+function monthYearToDate(value: string): Date {
+  const [year, month] = value.split("-").map(Number); // "2025-09" -> [2025, 9]
+  return new Date(year, month - 1, 1); // first day of that month (local time)
 }
 
 function groupBudgetItems(
