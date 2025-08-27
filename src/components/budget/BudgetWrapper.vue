@@ -41,10 +41,7 @@ import {
   IonButton,
   IonDatetime,
   IonHeader,
-  IonIcon,
-  IonItem,
   IonLabel,
-  IonList,
   IonModal,
   IonSegment,
   IonSegmentButton,
@@ -53,7 +50,7 @@ import {
 import { reactive, ref } from "vue";
 
 const modal = ref();
-const dismiss = () => modal.value.$el.dismiss();
+// const dismiss = () => modal.value.$el.dismiss();
 
 type TState = {
   selectedMonth: string;
