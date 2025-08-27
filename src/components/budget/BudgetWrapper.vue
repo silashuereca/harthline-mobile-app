@@ -8,12 +8,13 @@
           color="primary"
           size="small"
           expand="full"
+          shape="round"
         >
           <span v-text="readableMonthYear(state.selectedMonth)" />
         </IonButton>
       </IonToolbar>
       <div class="w-full flex items-center justify-center">
-        <IonSegment value="planned">
+        <IonSegment :value="state.tab" @ion-change="selectTab">
           <IonSegmentButton value="planned">
             <IonLabel>Planned</IonLabel>
           </IonSegmentButton>
@@ -65,6 +66,8 @@ export type TBudgetGroup = {
   type: TBudgetItem["type"];
 };
 
+type TTab = "planned" | "spent" | "remaining";
+
 type TState = {
   budgetExpenses: TBudgetExpenseRow[];
   budgetItemGroups: TBudgetGroup[];
@@ -76,6 +79,7 @@ type TState = {
   };
   search: string | null;
   selectedMonth: Date | null;
+  tab: TTab;
 };
 
 const modal = ref();
@@ -93,11 +97,17 @@ const state: TState = reactive({
   },
   search: "",
   selectedMonth: null,
+  tab: "planned",
 });
 
 onMounted(() => {
   setDefaultDate();
 });
+
+function selectTab(selected: any): void {
+  const value = selected.detail.value as TTab;
+  state.tab = value;
+}
 
 async function setDefaultDate(): Promise<void> {
   const now = new Date();

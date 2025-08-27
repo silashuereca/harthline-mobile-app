@@ -8,7 +8,7 @@
 
 
         <!-- Google login button -->
-        <IonButton expand="block" @click="onGoogle()">
+        <IonButton expand="block" shape="round" @click="onGoogle()">
           <IonIcon class="dark:text-white" :icon="logoGoogle" />
           <span class="pl-2 dark:text-white">Continue with Google</span>
         </IonButton>
