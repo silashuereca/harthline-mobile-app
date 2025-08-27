@@ -5,11 +5,11 @@
         <IonButton
           id="open-custom-dialog"
           type="button"
-          color="dark"
+          color="primary"
           size="small"
           expand="full"
         >
-          <span v-text="getMonthString(state.selectedMonth)" />
+          <span v-text="readableMonthYear(state.selectedMonth)" />
         </IonButton>
       </IonToolbar>
     </IonHeader>
@@ -127,6 +127,7 @@ async function setDefaultDate(): Promise<void> {
       state.budgetExpenses = expense;
       state.budgetItemGroups = groupBudgetItems(items);
       state.selectedMonth = DateTime.fromISO(result.month_start).toJSDate();
+      console.log("State", state);
       // router.replace({
       //   name: "budget-month",
       //   params: { id: result.id },
@@ -160,17 +161,18 @@ function getMonthString(date: Date): string {
   return DateTime.fromJSDate(date).toFormat("yyyy-MM-dd");
 }
 
-function selectMonth(selected: any): void {
-  const selectedDate = selected.detail.value;
-  state.selectedMonth = selectedDate;
+function readableMonthYear(d?: Date) {
+  return d
+    ? new Intl.DateTimeFormat("en-US", {
+        month: "long",
+        year: "numeric",
+      }).format(d)
+    : "";
 }
 
-function getMonthAndYear(dateString: string | null): string {
-  if (!dateString) {
-    return "";
-  }
-  const date = DateTime.fromISO(dateString);
-  return `${date.toFormat("MMMM")} ${date.toFormat("yyyy")}`;
+function selectMonth(selected: any): void {
+  // const selectedDate = selected.detail.value;
+  // state.selectedMonth = selectedDate;
 }
 
 function groupBudgetItems(
