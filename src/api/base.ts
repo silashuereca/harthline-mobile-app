@@ -1,26 +1,30 @@
-import { useToast } from "primevue/usetoast";
+import { toastController } from "@ionic/vue";
 
 import { useAppStore } from "../store";
 export class BaseApi {
-  protected toast = useToast();
+  protected toast = toastController;
   protected appStore = useAppStore();
 
-  protected showSuccess(message: string) {
-    this.toast.add({
-      detail: message,
-      life: 3000,
-      severity: "success",
-      summary: "Success",
+  protected async showSuccess(message: string) {
+    const toast = await this.toast.create({
+      color: "success",
+      duration: 1500,
+      message,
+      position: "top",
     });
+
+    await toast.present();
   }
 
-  protected showError(message: string) {
-    this.toast.add({
-      detail: message,
-      life: 3000,
-      severity: "error",
-      summary: "Error",
+  protected async showError(message: string) {
+    const toast = await this.toast.create({
+      color: "danger",
+      duration: 3000,
+      message,
+      position: "top",
     });
+
+    await toast.present();
   }
 
   protected houseId(): number {
