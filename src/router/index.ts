@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "@ionic/vue-router";
 import type { RouteRecordRaw } from "vue-router";
 
+import { useAppStore } from "../store";
 import { supabase } from "../supabase";
 
 const routes: Array<RouteRecordRaw> = [
@@ -14,7 +15,7 @@ const routes: Array<RouteRecordRaw> = [
   {
     component: () => import("../views/HomePage.vue"),
     name: "home",
-    path: "/app",
+    path: "/app/:houseId",
   },
 ];
 
@@ -27,20 +28,31 @@ router.beforeEach(async (to) => {
   const { data } = await supabase.auth.getSession();
   const isAuthed = !!data.session;
 
-  console.log("IsAuthed", isAuthed);
-  console.log("Full path", to.fullPath);
-
-  // If not authed, force to /auth
-  console.log("IsAuthed", isAuthed);
-
-  // 1) Not authed → only redirect if they're trying to leave /auth
   if (!isAuthed && to.path !== "/auth") {
+    return { path: "/auth", replace: true };
+  } else if (!isAuthed) {
     return { path: "/auth", replace: true };
   }
 
-  // 2) Authed → keep them out of /auth
-  if (isAuthed && to.path === "/auth") {
-    return { path: "/app", replace: true };
+  const { setHouseId } = useAppStore();
+  const settings = await supabase.from("settings").select("*").single();
+  setHouseId(settings.data?.selected_house_id);
+
+  // Authed → keep them out of /auth
+  if (to.path === "/auth") {
+    return {
+      name: "home",
+      params: { houseId: settings.data?.selected_house_id },
+      replace: true,
+    };
+  }
+
+  if (to.path === "/app") {
+    return {
+      name: "home",
+      params: { houseId: settings.data?.selected_house_id },
+      replace: true,
+    };
   }
 
   return true;

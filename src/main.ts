@@ -25,20 +25,21 @@ import "./theme/variables.css";
 
 import { App as CapacitorApp } from "@capacitor/app";
 import { IonicVue } from "@ionic/vue";
+import { createPinia } from "pinia";
 import { createApp } from "vue";
 
 import App from "./App.vue";
 import router from "./router";
 import { supabase } from "./supabase";
 
-const app = createApp(App).use(IonicVue).use(router);
+const app = createApp(App).use(IonicVue).use(createPinia()).use(router);
 
 CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
   const hash = url.split("#")[1] ?? "";
   const params = new URLSearchParams(hash);
   const access_token = params.get("access_token");
   const refresh_token = params.get("refresh_token");
-  console.log("URL", url);
+
   if (access_token && refresh_token) {
     const { error } = await supabase.auth.setSession({
       access_token,
@@ -46,7 +47,11 @@ CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
     });
     const session = await supabase.auth.getSession();
     if (session?.data?.session) {
-      await router.push("/app");
+      const settings = await supabase.from("settings").select("*").single();
+      await router.push({
+        name: "home",
+        params: { houseId: settings.data?.selected_house_id },
+      });
     }
     console.log("setSession", session?.data?.session);
     if (error) console.error("setSession error", error);

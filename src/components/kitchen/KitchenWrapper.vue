@@ -8,7 +8,7 @@
       </IonToolbar>
     </IonHeader>
 
-    <div class="py-2 px-2">
+    <div>
       <IonSegment value="recipes">
         <IonSegmentButton value="recipes">
           <IonLabel>Recipes</IonLabel>
