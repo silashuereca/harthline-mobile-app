@@ -41,7 +41,7 @@
         />
       </div>
     </IonModal>
-    <IonContent fullscreen class="ion-padding">
+    <IonContent fullscreen force-overscroll class="ion-padding">
       <div v-show="state.tab === 'planned'" class="grid grid-cols-2 gap-2">
         <IonCard class="ion-padding">
           <IonCardSubtitle>Income</IonCardSubtitle>
@@ -84,6 +84,29 @@
           </IonCardTitle>
         </IonCard>
       </div>
+
+      <div v-if="state.budgetItems.length" class="w-full flex flex-col sm:flex-row sm:gap-4 mt-5">
+        <div v-for="group in state.budgetItemGroups" :key="group.type" class="w-full mb-4">
+          <IonCard class="ion-padding">
+            <IonCardSubtitle>
+              <div class="w-full flex justify-between items-center">
+                <p class="font-bold text-gray-900" v-text="renderTypeHeader(group.type)" />
+                <p class="text-gray-600 text-[10px]" v-text="renderTabTitle(group.type)" />
+              </div>
+            </IonCardSubtitle>
+            <div class="mt-5">
+              <ul>
+                <li v-for="budgetItem in group.items" :key="budgetItem.id" class="mb-3">
+                  <EditBudgetItem :budget-item="budgetItem" :expenses="state.budgetExpenses" :tab="state.tab" />
+                </li>
+                <li class="w-full">
+                <!-- <CreateBudgetItem :month-id="state.budgetMonth.id" :category="group.type" @update:list="refreshBudgetItems()" /> -->
+                </li>
+              </ul>
+            </div>
+          </IonCard>
+        </div>
+      </div>
     </IonContent>
   </div>
 </template>
@@ -111,9 +134,11 @@ import {
   TBudgetExpenseRow,
 } from "../../api/budget-expenses/api";
 import { BudgetItemApi, TBudgetItem } from "../../api/budget-items/api";
+import { renderTypeHeader } from "../../api/budget-items/utils";
 import { BudgetMonthApi, TBudgetMonth } from "../../api/budget-months/api";
 import { formatCurrency } from "../../api/utils/common";
 import { useBudget } from "../../composables/useBudget";
+import EditBudgetItem from "./EditBudgetItem.vue";
 
 export type TBudgetGroup = {
   items: TBudgetItem[];
@@ -200,6 +225,21 @@ async function setDefaultDate(): Promise<void> {
     }
   } finally {
     state.loading.budgetMonth = false;
+  }
+}
+
+function renderTabTitle(type: TBudgetItem["type"]): string {
+  const tab = state.tab;
+  if (tab === "planned") {
+    return "Planned";
+  } else if (tab === "spent") {
+    if (type === "income") {
+      return "Received";
+    } else {
+      return "Spent";
+    }
+  } else if (tab === "remaining") {
+    return "Remaining";
   }
 }
 
