@@ -24,6 +24,7 @@ defineProps({
   },
   name: {
     default: "",
+    type: String,
   },
   open: {
     default: false,
