@@ -40,7 +40,7 @@
       </div>
     </IonPopover>
 
-    <BudgetItemForm :open="state.edit || state.showQuickExpenseModal" @update:close="handleFormClose()" />
+    <BudgetItemForm :open="state.edit || state.showQuickExpenseModal" :name="budgetItem.name" :amount="budgetItem.budgeted_amount" @update:close="handleFormClose()" />
   </div>
 </template>
 
