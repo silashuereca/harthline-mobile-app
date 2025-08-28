@@ -2,30 +2,34 @@
   <div>
     <IonHeader>
       <IonToolbar>
-        <IonButton
-          id="open-custom-dialog"
-          type="button"
-          color="primary"
-          size="small"
-          expand="full"
-          shape="round"
-        >
-          <span v-text="readableMonthYear(state.selectedMonth)" />
-        </IonButton>
+        <div class="w-full">
+          <IonButton
+            id="open-custom-dialog"
+            type="button"
+            color="primary"
+            size="small"
+            expand="full"
+            shape="round"
+          >
+            <span v-text="readableMonthYear(state.selectedMonth)" />
+          </IonButton>
+        </div>
       </IonToolbar>
-      <div class="w-full flex items-center justify-center">
-        <IonSegment :value="state.tab" @ion-change="selectTab">
-          <IonSegmentButton value="planned">
-            <IonLabel>Planned</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="spent">
-            <IonLabel>Spent</IonLabel>
-          </IonSegmentButton>
-          <IonSegmentButton value="remaining">
-            <IonLabel>Remaining</IonLabel>
-          </IonSegmentButton>
-        </IonSegment>
-      </div>
+      <IonToolbar>
+        <div class="w-full flex items-center justify-center">
+          <IonSegment :value="state.tab" @ion-change="selectTab">
+            <IonSegmentButton value="planned">
+              <IonLabel>Planned</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="spent">
+              <IonLabel>Spent</IonLabel>
+            </IonSegmentButton>
+            <IonSegmentButton value="remaining">
+              <IonLabel>Remaining</IonLabel>
+            </IonSegmentButton>
+          </IonSegment>
+        </div>
+      </IonToolbar>
     </IonHeader>
 
     <IonModal id="example-modal" ref="modal" trigger="open-custom-dialog">
@@ -37,12 +41,60 @@
         />
       </div>
     </IonModal>
+    <IonContent fullscreen class="ion-padding">
+      <div v-show="state.tab === 'planned'" class="grid grid-cols-2 gap-2">
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Income</IonCardSubtitle>
+          <IonCardTitle color="success">
+            <p v-text="formatCurrency(totalIncome, { showCents: false })" />
+          </IonCardTitle>
+        </IonCard>
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Planned Budget</IonCardSubtitle>
+          <IonCardTitle>
+            <p v-text="formatCurrency(monthlyBudgetTotal, { showCents: false})" />
+          </IonCardTitle>
+        </IonCard>
+      </div>
+      <div v-show="state.tab === 'spent'" class="grid grid-cols-2 gap-2">
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Spent So Far</IonCardSubtitle>
+          <IonCardTitle :color="overSpentOnTotalIncome ? 'danger' : 'success'">
+            <p v-text="formatCurrency(totalExpenses, { showCents: false})" />
+          </IonCardTitle>
+        </IonCard>
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Budget Spent</IonCardSubtitle>
+          <IonCardTitle :color="percentageIsOverBudget ? 'danger' : 'success'">
+            <p v-text="`${percentageOfBudgetSpent.toFixed(0)}%`" />
+          </IonCardTitle>
+        </IonCard>
+      </div>
+      <div v-show="state.tab === 'remaining'" class="grid grid-cols-2 gap-2">
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Remaining To Spend</IonCardSubtitle>
+          <IonCardTitle>
+            <p v-text="formatCurrency(remainingToSpendTotal, { showCents: false})" />
+          </IonCardTitle>
+        </IonCard>
+        <IonCard class="ion-padding">
+          <IonCardSubtitle>Budget Spent</IonCardSubtitle>
+          <IonCardTitle :color="remainingToSpendTotal < remainingBudgetNotSpentYet ? 'danger' : 'success'">
+            <p v-text="formatCurrency(remainingToSpendTotal - remainingBudgetNotSpentYet, { showCents: false})" />
+          </IonCardTitle>
+        </IonCard>
+      </div>
+    </IonContent>
   </div>
 </template>
 
 <script lang="ts" setup>
 import {
   IonButton,
+  IonCard,
+  IonCardSubtitle,
+  IonCardTitle,
+  IonContent,
   IonDatetime,
   IonHeader,
   IonLabel,
@@ -60,6 +112,8 @@ import {
 } from "../../api/budget-expenses/api";
 import { BudgetItemApi, TBudgetItem } from "../../api/budget-items/api";
 import { BudgetMonthApi, TBudgetMonth } from "../../api/budget-months/api";
+import { formatCurrency } from "../../api/utils/common";
+import { useBudget } from "../../composables/useBudget";
 
 export type TBudgetGroup = {
   items: TBudgetItem[];
@@ -99,6 +153,17 @@ const state: TState = reactive({
   selectedMonth: null,
   tab: "planned",
 });
+
+const {
+  monthlyBudgetTotal,
+  overSpentOnTotalIncome,
+  percentageIsOverBudget,
+  percentageOfBudgetSpent,
+  remainingBudgetNotSpentYet,
+  remainingToSpendTotal,
+  totalExpenses,
+  totalIncome,
+} = useBudget(state);
 
 onMounted(() => {
   setDefaultDate();
