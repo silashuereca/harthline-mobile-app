@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="flex items-center justify-between">
     <button v-show="!state.edit" type="button" class="hover:bg-gray-50 cursor-pointer w-full" @click="viewExpenses()">
       <div class="flex items-center justify-between w-full">
         <p class="text-sm" v-text="budgetItem.name" />
@@ -7,11 +7,44 @@
       </div>
       <IonProgressBar :value="setProgressWidth()" :color="setProgressColor()" />
     </button>
+
+    <button :id="`budget-${budgetItem.id}`" class="ml-2" @click="openPopover()">
+      <IonIcon :icon="ellipsisVertical" />
+    </button>
+
+    <IonPopover :trigger="`budget-${budgetItem.id}`" :is-open="state.openPopover" @did-dismiss="handlePopoverDismiss">
+      <div class="flex flex-col ion-padding">
+        <IonButton
+          size="small"
+          color="secondary"
+          @click="editBudgetItem"
+        >
+          Edit
+        </IonButton>
+        <IonButton
+          class="mt-4"
+          size="small"
+          color="success"
+          @click="showQuickExpenseModal"
+        >
+          Quick
+        </IonButton>
+        <IonButton
+          class="mt-4"
+          size="small"
+          color="danger"
+          @click="deleteBudgetItem"
+        >
+          Delete
+        </IonButton>
+      </div>
+    </IonPopover>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { IonProgressBar } from "@ionic/vue";
+import { IonButton, IonIcon, IonPopover, IonProgressBar } from "@ionic/vue";
+import { ellipsisVertical } from "ionicons/icons";
 import { computed, PropType, reactive } from "vue";
 
 import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
@@ -44,6 +77,7 @@ type TState = {
     addExpense: boolean;
     deletingItem: boolean;
   };
+  openPopover: boolean;
   showQuickExpenseModal: boolean;
 };
 
@@ -57,8 +91,10 @@ const state: TState = reactive({
     addExpense: false,
     deletingItem: false,
   },
+  openPopover: false,
   showQuickExpenseModal: false,
 });
+
 const getExpenses = computed(() => {
   const expenses = props.expenses.filter(
     (expense) => expense.budget_item_id === props.budgetItem.id,
@@ -96,6 +132,18 @@ const getProgressPercentage = computed(() => {
   return getRemainingPercentage();
 });
 
+function openPopover(): void {
+  state.openPopover = true;
+}
+
+function handlePopoverDismiss(): void {
+  state.openPopover = false;
+}
+
+function editBudgetItem(): void {}
+function deleteBudgetItem(): void {}
+function showQuickExpenseModal(): void {}
+
 function getRemainingPercentage(): number {
   const total = getTotal(getExpenses.value.map((expense) => expense.amount));
   const budgetedAmount = props.budgetItem.budgeted_amount;
@@ -131,3 +179,12 @@ function viewExpenses(): void {
   console.log("View Expenses");
 }
 </script>
+
+<style>
+ion-popover {
+  --backdrop-opacity: 0.6;
+  --box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.6);
+  --color: white;
+  --width: 100px;
+}
+</style>
