@@ -39,6 +39,8 @@
         </IonButton>
       </div>
     </IonPopover>
+
+    <BudgetItemForm :open="state.edit || state.showQuickExpenseModal" @update:close="handleFormClose()" />
   </div>
 </template>
 
@@ -51,6 +53,7 @@ import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { formatCurrency } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
+import BudgetItemForm from "./BudgetItemForm.vue";
 
 const props = defineProps({
   budgetItem: {
@@ -132,6 +135,11 @@ const getProgressPercentage = computed(() => {
   return getRemainingPercentage();
 });
 
+function handleFormClose(): void {
+  state.edit = false;
+  state.showQuickExpenseModal = false;
+}
+
 function openPopover(): void {
   state.openPopover = true;
 }
@@ -140,7 +148,10 @@ function handlePopoverDismiss(): void {
   state.openPopover = false;
 }
 
-function editBudgetItem(): void {}
+function editBudgetItem(): void {
+  state.edit = true;
+  state.openPopover = false;
+}
 function deleteBudgetItem(): void {}
 function showQuickExpenseModal(): void {}
 
