@@ -54,12 +54,12 @@
         Delete
       </IonButton>
 
-      <IonCard class="ion-padding mt-5">
-        <IonButton color="primary" size="small" expand="full" @click="createExpense()">
-          Add Expense
-        </IonButton>
-        <div class="mt-8">
-          <button v-for="expense in state.expenses" :key="expense.id" class="w-full" @click="editExpense()">
+      <IonCard v-show="state.expenses.length" class="ion-padding mt-5">
+        <p class="text-center">
+          Expenses
+        </p>
+        <div v-show="state.expenses.length">
+          <button v-for="expense in state.expenses" :key="expense.id" class="w-full" @click="editExpense(expense)">
             <div class="grid grid-cols-2 gap-2 border-b border-gray-200 mb-2 py-2">
               <div class="text-left">
                 <p class="text-black font-medium" v-text="expense.name" />
@@ -73,6 +73,20 @@
         </div>
       </IonCard>
     </IonContent>
+    <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
+    <IonFab slot="fixed" vertical="bottom" horizontal="end">
+      <IonFabButton @click="createExpense">
+        <IonIcon :icon="add" />
+      </IonFabButton>
+    </IonFab>
+
+    <ExpenseItemEdit
+      v-if="state.closeExpenseWrapper"
+      :open="state.openExpense"
+      :expense="state.selectedExpense"
+      @update:close="closeExpenseModal"
+      @update:expenses="fetchExpenses"
+    />
   </IonModal>
 </template>
 
@@ -82,7 +96,10 @@ import {
   IonButtons,
   IonCard,
   IonContent,
+  IonFab,
+  IonFabButton,
   IonHeader,
+  IonIcon,
   IonInput,
   IonList,
   IonModal,
@@ -91,6 +108,7 @@ import {
 } from "@ionic/vue";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
+import { add } from "ionicons/icons";
 import { computed, onMounted, PropType, reactive } from "vue";
 
 import {
@@ -103,6 +121,7 @@ import { formatCurrency, formatDate } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
 import { useMoneyInput } from "../../composables/useMoneyInput";
 import { useToast } from "../../composables/useToast";
+import ExpenseItemEdit from "./ExpenseItemEdit.vue";
 
 const props = defineProps({
   budgetItem: {
@@ -123,6 +142,7 @@ type TEmits = {
 const emit = defineEmits<TEmits>();
 
 type TState = {
+  closeExpenseWrapper: boolean;
   expenses: TBudgetExpenseRow[];
   form: {
     amount: string;
@@ -132,12 +152,15 @@ type TState = {
     createOrEditBudgetItem: boolean;
     delete: boolean;
   };
+  openExpense: boolean;
+  selectedExpense: TBudgetExpenseRow | null;
 };
 
 const budgetExpenseApi: BudgetExpenseApi = new BudgetExpenseApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const { presentToast } = useToast();
 const state: TState = reactive({
+  closeExpenseWrapper: null,
   expenses: [],
   form: {
     amount: "",
@@ -147,12 +170,12 @@ const state: TState = reactive({
     createOrEditBudgetItem: false,
     delete: false,
   },
+  openExpense: false,
+  selectedExpense: null,
 });
 
-onMounted(async () => {
-  state.expenses = await budgetExpenseApi.getBudgetExpenses({
-    id: props.budgetItem.id,
-  });
+onMounted(() => {
+  fetchExpenses();
 });
 
 const {
@@ -196,6 +219,23 @@ function closeModal(): void {
     return;
   }
   emit("update:close");
+}
+
+function closeExpenseModal(): void {
+  state.openExpense = false;
+  state.selectedExpense = null;
+
+  setTimeout(() => {
+    state.closeExpenseWrapper = false;
+  }, 200);
+}
+
+async function fetchExpenses(): Promise<void> {
+  state.expenses = await budgetExpenseApi.getBudgetExpenses({
+    id: props.budgetItem.id,
+  });
+  state.selectedExpense = null;
+  state.openExpense = false;
 }
 
 async function saveItem(): Promise<void> {
@@ -248,10 +288,19 @@ async function deleteBudgetItem(): Promise<void> {
   }
 }
 
-function createExpense(): void {}
+function createExpense(): void {
+  console.log("Create Expense");
+}
 
-function editExpense(): void {}
+function editExpense(expense: TBudgetExpenseRow): void {
+  state.selectedExpense = expense;
+  state.openExpense = true;
+  state.closeExpenseWrapper = true;
+}
 </script>
 
-
-
+<style>
+ion-fab {
+  margin-bottom: var(--ion-safe-area-bottom, 0);
+}
+</style>

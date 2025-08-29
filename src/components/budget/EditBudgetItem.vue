@@ -8,7 +8,7 @@
       <IonProgressBar :value="setProgressWidth()" :color="setProgressColor()" />
     </button>
 
-    <BudgetItemForm
+    <BudgetItemSheet
       v-if="state.closeBudgetItemWrapper"
       :open="state.openBudgetItem"
       :budget-item="budgetItem"
@@ -26,7 +26,7 @@ import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { formatCurrency } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
-import BudgetItemForm from "./BudgetItemSheet.vue";
+import BudgetItemSheet from "./BudgetItemSheet.vue";
 
 const props = defineProps({
   budgetItem: {
