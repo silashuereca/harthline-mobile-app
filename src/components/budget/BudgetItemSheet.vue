@@ -53,6 +53,25 @@
       >
         Delete
       </IonButton>
+
+      <IonCard class="ion-padding mt-5">
+        <IonButton color="primary" size="small" expand="full" @click="createExpense()">
+          Add Expense
+        </IonButton>
+        <div class="mt-8">
+          <button v-for="expense in state.expenses" :key="expense.id" class="w-full" @click="editExpense()">
+            <div class="grid grid-cols-2 gap-2 border-b border-gray-200 mb-2 py-2">
+              <div class="text-left">
+                <p class="text-black font-medium" v-text="expense.name" />
+                <p class="text-gray-500 text-xs mt-1" v-text="formatDate(expense.created_at)" />
+              </div>
+              <div class="flex items-center justify-end">
+                <p class="text-black" v-text="formatCurrency(expense.amount)" />
+              </div>
+            </div>
+          </button>
+        </div>
+      </IonCard>
     </IonContent>
   </IonModal>
 </template>
@@ -61,6 +80,7 @@
 import {
   IonButton,
   IonButtons,
+  IonCard,
   IonContent,
   IonHeader,
   IonInput,
@@ -79,7 +99,7 @@ import {
 } from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { BudgetItemApi } from "../../api/budget-items/api";
-import { formatCurrency } from "../../api/utils/common";
+import { formatCurrency, formatDate } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
 import { useMoneyInput } from "../../composables/useMoneyInput";
 import { useToast } from "../../composables/useToast";
@@ -227,6 +247,10 @@ async function deleteBudgetItem(): Promise<void> {
     emit("update:items");
   }
 }
+
+function createExpense(): void {}
+
+function editExpense(): void {}
 </script>
 
 
