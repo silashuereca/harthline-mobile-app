@@ -62,9 +62,12 @@ import {
 } from "@ionic/vue";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { computed, PropType, reactive } from "vue";
+import { computed, onMounted, PropType, reactive } from "vue";
 
-import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
+import {
+  BudgetExpenseApi,
+  TBudgetExpenseRow,
+} from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { BudgetItemApi } from "../../api/budget-items/api";
 import { formatCurrency } from "../../api/utils/common";
@@ -101,6 +104,7 @@ type TState = {
   };
 };
 
+const budgetExpenseApi: BudgetExpenseApi = new BudgetExpenseApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const { presentToast } = useToast();
 const state: TState = reactive({
@@ -112,6 +116,12 @@ const state: TState = reactive({
   loading: {
     createOrEditBudgetItem: false,
   },
+});
+
+onMounted(async () => {
+  state.expenses = await budgetExpenseApi.getBudgetExpenses({
+    id: props.budgetItem.id,
+  });
 });
 
 const {
