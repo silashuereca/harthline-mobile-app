@@ -1,56 +1,32 @@
 <template>
   <div class="flex items-center justify-between">
-    <button v-show="!state.edit" type="button" class="hover:bg-gray-50 cursor-pointer w-full" @click="viewExpenses()">
+    <button v-show="!state.edit" type="button" class="hover:bg-gray-50 cursor-pointer w-full" @click="openBudgetItem()">
       <div class="flex items-center justify-between w-full">
         <p class="text-sm" v-text="budgetItem.name" />
         <p class="text-sm" :class="[isOverBudget && 'text-red-500']" v-text="formatCurrency(renderTabViewForAmount)" />
       </div>
-      <IonProgressBar :value="setProgressWidth()" :color="setProgressColor()" />
+      <IonProgressBar :value="setProgressWidth() / 100" :color="setProgressColor()" />
     </button>
 
-    <button :id="`budget-${budgetItem.id}`" class="ml-2" @click="openPopover()">
-      <IonIcon :icon="ellipsisVertical" />
-    </button>
-
-    <IonPopover :trigger="`budget-${budgetItem.id}`" :is-open="state.openPopover" @did-dismiss="handlePopoverDismiss">
-      <div class="flex flex-col ion-padding">
-        <IonButton
-          size="small"
-          color="secondary"
-          @click="editBudgetItem"
-        >
-          Edit
-        </IonButton>
-        <IonButton
-          class="mt-4"
-          size="small"
-          color="success"
-          @click="showQuickExpenseModal"
-        >
-          Quick
-        </IonButton>
-        <IonButton
-          class="mt-4"
-          size="small"
-          color="danger"
-          @click="deleteBudgetItem"
-        >
-          Delete
-        </IonButton>
-      </div>
-    </IonPopover>
+    <BudgetItemSheet
+      v-if="state.closeBudgetItemWrapper"
+      :open="state.openBudgetItem"
+      :budget-item="budgetItem"
+      @update:close="closeBudgetItem()"
+      @update:items="updateBudgetItems()"
+    />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { IonButton, IonIcon, IonPopover, IonProgressBar } from "@ionic/vue";
-import { ellipsisVertical } from "ionicons/icons";
+import { IonProgressBar } from "@ionic/vue";
 import { computed, PropType, reactive } from "vue";
 
 import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { formatCurrency } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
+import BudgetItemSheet from "./BudgetItemSheet.vue";
 
 const props = defineProps({
   budgetItem: {
@@ -67,7 +43,14 @@ const props = defineProps({
   },
 });
 
+type TEmits = {
+  "update:refresh": [boolean];
+};
+
+const emit = defineEmits<TEmits>();
+
 type TState = {
+  closeBudgetItemWrapper: boolean;
   edit: boolean;
   expenseForm: {
     amount: string;
@@ -77,11 +60,11 @@ type TState = {
     addExpense: boolean;
     deletingItem: boolean;
   };
-  openPopover: boolean;
-  showQuickExpenseModal: boolean;
+  openBudgetItem: boolean;
 };
 
 const state: TState = reactive({
+  closeBudgetItemWrapper: false,
   edit: false,
   expenseForm: {
     amount: "",
@@ -91,8 +74,7 @@ const state: TState = reactive({
     addExpense: false,
     deletingItem: false,
   },
-  openPopover: false,
-  showQuickExpenseModal: false,
+  openBudgetItem: false,
 });
 
 const getExpenses = computed(() => {
@@ -132,17 +114,22 @@ const getProgressPercentage = computed(() => {
   return getRemainingPercentage();
 });
 
-function openPopover(): void {
-  state.openPopover = true;
+function openBudgetItem(): void {
+  state.closeBudgetItemWrapper = true;
+  state.openBudgetItem = true;
 }
 
-function handlePopoverDismiss(): void {
-  state.openPopover = false;
+function closeBudgetItem(): void {
+  state.openBudgetItem = false;
+  setTimeout(() => {
+    state.closeBudgetItemWrapper = false;
+  }, 200);
 }
 
-function editBudgetItem(): void {}
-function deleteBudgetItem(): void {}
-function showQuickExpenseModal(): void {}
+function updateBudgetItems(): void {
+  closeBudgetItem();
+  emit("update:refresh", true);
+}
 
 function getRemainingPercentage(): number {
   const total = getTotal(getExpenses.value.map((expense) => expense.amount));
@@ -174,10 +161,6 @@ function setProgressWidth(): number {
 const isOverBudget = computed(() => {
   return getExpensePercentage.value > 100;
 });
-
-function viewExpenses(): void {
-  console.log("View Expenses");
-}
 </script>
 
 <style>

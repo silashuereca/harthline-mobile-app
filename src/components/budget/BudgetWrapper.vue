@@ -97,10 +97,10 @@
             <div class="mt-5">
               <ul>
                 <li v-for="budgetItem in group.items" :key="budgetItem.id" class="mb-3">
-                  <EditBudgetItem :budget-item="budgetItem" :expenses="state.budgetExpenses" :tab="state.tab" />
+                  <EditBudgetItem :budget-item="budgetItem" :expenses="state.budgetExpenses" :tab="state.tab" @update:refresh="fetchBudgetItems()" />
                 </li>
                 <li class="w-full">
-                <!-- <CreateBudgetItem :month-id="state.budgetMonth.id" :category="group.type" @update:list="refreshBudgetItems()" /> -->
+                  <BudgetItemCreate :month-id="state.budgetMonth.id" :category="group.type" @update:items="fetchBudgetItems()" />
                 </li>
               </ul>
             </div>
@@ -138,6 +138,7 @@ import { renderTypeHeader } from "../../api/budget-items/utils";
 import { BudgetMonthApi, TBudgetMonth } from "../../api/budget-months/api";
 import { formatCurrency } from "../../api/utils/common";
 import { useBudget } from "../../composables/useBudget";
+import BudgetItemCreate from "./BudgetItemCreate.vue";
 import EditBudgetItem from "./EditBudgetItem.vue";
 
 export type TBudgetGroup = {
