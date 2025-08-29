@@ -110,6 +110,7 @@ type TState = {
   };
   loading: {
     createOrEditBudgetItem: boolean;
+    delete: boolean;
   };
 };
 
@@ -124,6 +125,7 @@ const state: TState = reactive({
   },
   loading: {
     createOrEditBudgetItem: false,
+    delete: false,
   },
 });
 
@@ -177,7 +179,7 @@ function closeModal(): void {
 }
 
 async function saveItem(): Promise<void> {
-  if (state.loading.createOrEditBudgetItem) {
+  if (state.loading.createOrEditBudgetItem || state.loading.delete) {
     return;
   }
 
@@ -213,7 +215,18 @@ async function saveItem(): Promise<void> {
   }
 }
 
-async function deleteBudgetItem(): Promise<void> {}
+async function deleteBudgetItem(): Promise<void> {
+  if (state.loading.delete) return;
+
+  try {
+    await budgetItemApi.deleteBudgetItem({
+      id: props.budgetItem.id,
+    });
+  } finally {
+    state.loading.delete = false;
+    emit("update:items");
+  }
+}
 </script>
 
 
