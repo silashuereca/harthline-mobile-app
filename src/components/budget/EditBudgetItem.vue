@@ -26,7 +26,7 @@ import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
 import { TBudgetItem } from "../../api/budget-items/api";
 import { formatCurrency } from "../../api/utils/common";
 import { getTotal } from "../../composables/useBudget";
-import BudgetItemForm from "./BudgetItemForm.vue";
+import BudgetItemForm from "./BudgetItemSheet.vue";
 
 const props = defineProps({
   budgetItem: {
