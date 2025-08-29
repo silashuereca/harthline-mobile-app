@@ -1,5 +1,17 @@
 <template>
-  <IonModal :is-open="open" :backdrop-dismiss="false">
+  <div class="w-full">
+    <IonButton
+      label="Add Item"
+      size="small"
+      fill="clear"
+      color="primary"
+      @click="openModal()"
+    >
+      Add Item
+    </IonButton>
+  </div>
+
+  <IonModal :is-open="state.open" :backdrop-dismiss="false">
     <IonHeader>
       <IonToolbar>
         <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
@@ -9,28 +21,19 @@
           </IonButton>
         </IonButtons>
         <IonTitle>
-          <IonInput v-model="state.form.name" />
+          Create Budget Item
         </IonTitle>
         <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
         <IonButtons slot="end">
-          <IonButton size="small" :strong="true" @click="saveItem()">
+          <IonButton size="small" :strong="true" @click="createItem()">
             Done
           </IonButton>
         </IonButtons>
       </IonToolbar>
     </IonHeader>
     <IonContent class="ion-padding">
-      <div class="w-full flex justify-center">
-        <div class="flex items-center">
-          <p class="text-green-500 text-xs" v-text="formatCurrency(totalExpenses)" />
-          <p class="text-xs mx-2">
-            <span v-text="budgetItem.type === 'income' ? 'received of' : 'spent of'" />
-          </p>
-          <p class="text-gray-500 text-xs" v-text="formatCurrency(budgetAmount())" />
-        </div>
-      </div>
-
       <IonList>
+        <IonInput v-model="state.form.name" placeholder="Enter budget name" label="Budget Name" label-placement="stacked" />
         <IonInput
           :value="formattedAmount"
           type="text"
@@ -44,15 +47,6 @@
           @keydown.enter="handleKeydown"
         />
       </IonList>
-      <IonButton
-        color="danger"
-        size="small"
-        expand="full"
-        fill="clear"
-        @click="deleteBudgetItem()"
-      >
-        Delete
-      </IonButton>
     </IonContent>
   </IonModal>
 </template>
@@ -71,39 +65,32 @@ import {
 } from "@ionic/vue";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { computed, onMounted, PropType, reactive } from "vue";
+import { computed, PropType, reactive } from "vue";
 
-import {
-  BudgetExpenseApi,
-  TBudgetExpenseRow,
-} from "../../api/budget-expenses/api";
-import { TBudgetItem } from "../../api/budget-items/api";
-import { BudgetItemApi } from "../../api/budget-items/api";
-import { formatCurrency } from "../../api/utils/common";
-import { getTotal } from "../../composables/useBudget";
+import { BudgetItemApi, TBudgetItemCategory } from "../../api/budget-items/api";
 import { useMoneyInput } from "../../composables/useMoneyInput";
 import { useToast } from "../../composables/useToast";
 
 const props = defineProps({
-  budgetItem: {
+  category: {
+    default: "",
     required: true,
-    type: Object as PropType<TBudgetItem>,
+    type: String as PropType<TBudgetItemCategory>,
   },
-  open: {
-    default: false,
-    type: Boolean,
+  monthId: {
+    default: "",
+    required: true,
+    type: String,
   },
 });
 
 type TEmits = {
-  "update:close": [void];
   "update:items": [void];
 };
 
 const emit = defineEmits<TEmits>();
 
 type TState = {
-  expenses: TBudgetExpenseRow[];
   form: {
     amount: string;
     name: string;
@@ -111,13 +98,12 @@ type TState = {
   loading: {
     createOrEditBudgetItem: boolean;
   };
+  open: boolean;
 };
 
-const budgetExpenseApi: BudgetExpenseApi = new BudgetExpenseApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const { presentToast } = useToast();
 const state: TState = reactive({
-  expenses: [],
   form: {
     amount: "",
     name: "",
@@ -125,12 +111,7 @@ const state: TState = reactive({
   loading: {
     createOrEditBudgetItem: false,
   },
-});
-
-onMounted(async () => {
-  state.expenses = await budgetExpenseApi.getBudgetExpenses({
-    id: props.budgetItem.id,
-  });
+  open: false,
 });
 
 const {
@@ -140,14 +121,10 @@ const {
   handleInput,
   handleKeydown,
 } = useMoneyInput({
-  amountProp: props.budgetItem.budgeted_amount || 0,
-  edit: props.open,
+  amountProp: 0,
+  edit: true,
   form: state.form,
-  nameProp: props.budgetItem.name,
-});
-
-const totalExpenses = computed(() => {
-  return getTotal(state.expenses.map((expense) => expense.amount));
+  nameProp: "",
 });
 
 const rules = computed(() => {
@@ -165,18 +142,15 @@ const rules = computed(() => {
 
 const $v: any = useVuelidate(rules, { state });
 
-function budgetAmount(): number {
-  return props.budgetItem?.budgeted_amount || 0;
+function openModal(): void {
+  state.open = true;
 }
 
 function closeModal(): void {
-  if (state.loading.createOrEditBudgetItem) {
-    return;
-  }
-  emit("update:close");
+  state.open = false;
 }
 
-async function saveItem(): Promise<void> {
+async function createItem(): Promise<void> {
   if (state.loading.createOrEditBudgetItem) {
     return;
   }
@@ -191,29 +165,30 @@ async function saveItem(): Promise<void> {
     }
 
     if ($v.value.state.form.name.$error) {
-      await presentToast("Please enter a valid budget name at the top", {
+      await presentToast("Please enter a valid budget name", {
         color: "danger",
         placement: "bottom",
       });
     }
+
     return;
   }
 
   try {
     const { amount, name } = state.form;
     const inputAmount = formatAmountToSave(amount);
-    await budgetItemApi.updateBudgetItem({
+    await budgetItemApi.createBudgetItem({
       amount: inputAmount,
-      id: props.budgetItem.id,
+      category: props.category,
+      monthId: props.monthId,
       name,
     });
   } finally {
     state.loading.createOrEditBudgetItem = false;
+    state.open = false;
     emit("update:items");
   }
 }
-
-async function deleteBudgetItem(): Promise<void> {}
 </script>
 
 
