@@ -9,7 +9,7 @@
     </IonHeader>
 
     <div class="p-4">
-      <IonButton class="w-full" @click="logout">
+      <IonButton size="small" shape="round" expand="full" @click="logout">
         Logout
       </IonButton>
     </div>

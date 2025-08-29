@@ -23,10 +23,6 @@
           <IconCreditCard class=" dark:text-white" />
           <span class="dark:text-white">Budget</span>
         </IonTabButton>
-        <IonTabButton tab="kitchen">
-          <IconCake class=" dark:text-white" />
-          <span class="dark:text-white">Kitchen</span>
-        </IonTabButton>
         <IonTabButton tab="profile">
           <IconUserCircle class=" dark:text-white" />
           <span class="dark:text-white">Profile</span>
@@ -48,7 +44,6 @@ import {
 import BudgetWrapper from "../components/budget/BudgetWrapper.vue";
 import KitchenWrapper from "../components/kitchen/KitchenWrapper.vue";
 import UserProfile from "../components/UserProfile.vue";
-import IconCake from "../icons/IconCake.vue";
 import IconCreditCard from "../icons/IconCreditCard.vue";
 import IconUserCircle from "../icons/IconUserCircle.vue";
 </script>
