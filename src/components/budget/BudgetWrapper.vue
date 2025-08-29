@@ -97,7 +97,7 @@
             <div class="mt-5">
               <ul>
                 <li v-for="budgetItem in group.items" :key="budgetItem.id" class="mb-3">
-                  <EditBudgetItem :budget-item="budgetItem" :expenses="state.budgetExpenses" :tab="state.tab" />
+                  <EditBudgetItem :budget-item="budgetItem" :expenses="state.budgetExpenses" :tab="state.tab" @update:refresh="fetchBudgetItems()" />
                 </li>
                 <li class="w-full">
                 <!-- <CreateBudgetItem :month-id="state.budgetMonth.id" :category="group.type" @update:list="refreshBudgetItems()" /> -->

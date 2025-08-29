@@ -1,30 +1,81 @@
 <template>
-  <IonModal id="example-modal" :is-open="open" :backdrop-dismiss="false">
-    <IonCard class="ion-padding">
-      <IonInput :value="name" placeholder="Enter budget item name" label="Name" />
-      <IonInput :value="amount" type="number" placeholder="Enter budget item amount" label="Amount" />
-      <div class="mt-5 flex items-center justify-between">
-        <IonButton size="small" color="light" @click="closeModal()">
-          Close
-        </IonButton>
-        <IonButton color="success" size="small" @click="saveItem()">
-          <span class="text-white">Save</span>
-        </IonButton>
+  <IonModal :is-open="open" :backdrop-dismiss="false">
+    <IonHeader>
+      <IonToolbar>
+        <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
+        <IonButtons slot="start">
+          <IonButton @click="closeModal()">
+            Cancel
+          </IonButton>
+        </IonButtons>
+        <IonTitle>
+          <IonInput v-model="state.form.name" />
+        </IonTitle>
+        <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
+        <IonButtons slot="end">
+          <IonButton :strong="true" @click="saveOrCreateBudgetItem()">
+            Done
+          </IonButton>
+        </IonButtons>
+      </IonToolbar>
+    </IonHeader>
+    <IonContent class="ion-padding">
+      <div class="w-full flex justify-center">
+        <div class="flex items-center">
+          <p class="text-green-500 text-xs" v-text="formatCurrency(totalExpenses)" />
+          <p class="text-xs mx-2">
+            <span v-text="budgetItem.type === 'income' ? 'received of' : 'spent of'" />
+          </p>
+          <p class="text-gray-500 text-xs" v-text="formatCurrency(budgetAmount())" />
+        </div>
       </div>
-    </IonCard>
+
+      <IonList>
+        <IonInput
+          :value="formattedAmount"
+          type="text"
+          inputmode="numeric"
+          placeholder="Enter budget item amount"
+          label="Budget Amount"
+          label-placement="stacked"
+          error-text="Required"
+          @ion-blur="handleBlur"
+          @ion-input="handleInput"
+          @keydown.enter="handleKeydown"
+        />
+      </IonList>
+    </IonContent>
   </IonModal>
 </template>
 
 <script lang="ts" setup>
-import { IonButton, IonCard, IonInput, IonModal } from "@ionic/vue";
-defineProps({
-  amount: {
-    default: 0,
-    type: Number,
-  },
-  name: {
-    default: "",
-    type: String,
+import {
+  IonButton,
+  IonButtons,
+  IonContent,
+  IonHeader,
+  IonInput,
+  IonList,
+  IonModal,
+  IonTitle,
+  IonToolbar,
+} from "@ionic/vue";
+import useVuelidate from "@vuelidate/core";
+import { required } from "@vuelidate/validators";
+import { computed, PropType, reactive } from "vue";
+
+import { TBudgetExpenseRow } from "../../api/budget-expenses/api";
+import { TBudgetItem } from "../../api/budget-items/api";
+import { BudgetItemApi } from "../../api/budget-items/api";
+import { formatCurrency } from "../../api/utils/common";
+import { getTotal } from "../../composables/useBudget";
+import { useMoneyInput } from "../../composables/useMoneyInput";
+import { useToast } from "../../composables/useToast";
+
+const props = defineProps({
+  budgetItem: {
+    required: true,
+    type: Object as PropType<TBudgetItem>,
   },
   open: {
     default: false,
@@ -34,47 +85,128 @@ defineProps({
 
 type TEmits = {
   "update:close": [void];
+  "update:items": [void];
 };
 
 const emit = defineEmits<TEmits>();
 
+type TState = {
+  expenses: TBudgetExpenseRow[];
+  form: {
+    amount: string;
+    name: string;
+  };
+  loading: {
+    createOrEditBudgetItem: boolean;
+  };
+};
+
+const budgetItemApi: BudgetItemApi = new BudgetItemApi();
+const { presentToast } = useToast();
+const state: TState = reactive({
+  expenses: [],
+  form: {
+    amount: "",
+    name: "",
+  },
+  loading: {
+    createOrEditBudgetItem: false,
+  },
+});
+
+const {
+  formatAmountToSave,
+  formattedAmount,
+  handleBlur,
+  handleInput,
+  handleKeydown,
+} = useMoneyInput({
+  amountProp: props.budgetItem.budgeted_amount || 0,
+  edit: props.open,
+  form: state.form,
+  nameProp: props.budgetItem.name,
+});
+
+const totalExpenses = computed(() => {
+  return getTotal(state.expenses.map((expense) => expense.amount));
+});
+
+const rules = computed(() => {
+  const validations = {
+    state: {
+      form: {
+        amount: { required },
+        name: { required },
+      },
+    },
+  };
+
+  return validations;
+});
+
+const $v: any = useVuelidate(rules, { state });
+
+function budgetAmount(): number {
+  return props.budgetItem?.budgeted_amount || 0;
+}
+
 function closeModal(): void {
+  if (state.loading.createOrEditBudgetItem) {
+    return;
+  }
   emit("update:close");
 }
 
-function saveItem(): void {
-  emit("update:close");
+async function saveOrCreateBudgetItem(): Promise<void> {
+  if (state.loading.createOrEditBudgetItem) {
+    return;
+  }
+
+  const valid = await $v.value.$validate();
+  if (!valid) {
+    if ($v.value.state.form.amount.$error) {
+      await presentToast("Please enter a valid amount", {
+        color: "danger",
+        placement: "bottom",
+      });
+    }
+
+    if ($v.value.state.form.name.$error) {
+      await presentToast("Please enter a valid budget name at the top", {
+        color: "danger",
+        placement: "bottom",
+      });
+    }
+
+    return;
+  }
+
+  if (props.budgetItem?.id) {
+    await updateBudgetItem();
+  } else {
+    createBudgetItem();
+  }
+
+  emit("update:items");
 }
+
+async function updateBudgetItem(): Promise<void> {
+  try {
+    const { amount, name } = state.form;
+    const inputAmount = formatAmountToSave(amount);
+    await budgetItemApi.updateBudgetItem({
+      amount: inputAmount,
+      id: props.budgetItem.id,
+      name,
+    });
+  } finally {
+    state.loading.createOrEditBudgetItem = false;
+    emit("update:close");
+  }
+}
+
+async function createBudgetItem(): Promise<void> {}
 </script>
-
-<style>
-ion-modal#budget-form-component {
-  --width: fit-content;
-  --min-width: 250px;
-  --height: fit-content;
-  --border-radius: 6px;
-  --box-shadow: 0 28px 48px rgba(0, 0, 0, 0.4);
-}
-
-ion-modal#budget-form-component h1 {
-  margin: 20px 20px 10px 20px;
-}
-
-ion-modal#budget-form-component ion-icon {
-  margin-right: 6px;
-
-  width: 48px;
-  height: 48px;
-
-  padding: 4px 0;
-
-  color: #aaaaaa;
-}
-
-ion-modal#budget-form-component .wrapper {
-  margin-bottom: 10px;
-}
-</style>
 
 
 
