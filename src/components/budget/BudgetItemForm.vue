@@ -13,7 +13,7 @@
         </IonTitle>
         <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
         <IonButtons slot="end">
-          <IonButton :strong="true" @click="saveOrCreateBudgetItem()">
+          <IonButton :strong="true" @click="saveItem()">
             Done
           </IonButton>
         </IonButtons>
@@ -157,7 +157,7 @@ function closeModal(): void {
   emit("update:close");
 }
 
-async function saveOrCreateBudgetItem(): Promise<void> {
+async function saveItem(): Promise<void> {
   if (state.loading.createOrEditBudgetItem) {
     return;
   }
@@ -178,34 +178,21 @@ async function saveOrCreateBudgetItem(): Promise<void> {
       });
     }
 
-    return;
+    try {
+      const { amount, name } = state.form;
+      const inputAmount = formatAmountToSave(amount);
+      await budgetItemApi.updateBudgetItem({
+        amount: inputAmount,
+        id: props.budgetItem.id,
+        name,
+      });
+    } finally {
+      state.loading.createOrEditBudgetItem = false;
+      emit("update:close");
+    }
   }
-
-  if (props.budgetItem?.id) {
-    await updateBudgetItem();
-  } else {
-    createBudgetItem();
-  }
-
   emit("update:items");
 }
-
-async function updateBudgetItem(): Promise<void> {
-  try {
-    const { amount, name } = state.form;
-    const inputAmount = formatAmountToSave(amount);
-    await budgetItemApi.updateBudgetItem({
-      amount: inputAmount,
-      id: props.budgetItem.id,
-      name,
-    });
-  } finally {
-    state.loading.createOrEditBudgetItem = false;
-    emit("update:close");
-  }
-}
-
-async function createBudgetItem(): Promise<void> {}
 </script>
 
 
