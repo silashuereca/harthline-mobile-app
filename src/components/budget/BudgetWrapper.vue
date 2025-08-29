@@ -41,7 +41,20 @@
         />
       </div>
     </IonModal>
-    <IonContent fullscreen force-overscroll class="ion-padding">
+    <IonContent v-if="!state.budgetItems.length && !state.loading.budgetMonth && !state.budgetMonth && !state.loading.creatingBudget" fullscreen class="ion-padding">
+      <div class="mt-20 sm:flex sm:mt-0 sm:justify-end m-auto sm:m-0">
+        <IonButton
+          color="dark"
+          expand="full"
+          shape="round"
+          @click="createBudget()"
+        >
+          Create Budget
+        </IonButton>
+      </div>
+    </IonContent>
+
+    <IonContent v-if="state.budgetItems.length" fullscreen force-overscroll class="ion-padding">
       <div v-show="state.tab === 'planned'" class="grid grid-cols-2 gap-2">
         <IonCard class="ion-padding">
           <IonCardSubtitle>Income</IonCardSubtitle>
@@ -85,7 +98,7 @@
         </IonCard>
       </div>
 
-      <div v-if="state.budgetItems.length" class="w-full flex flex-col sm:flex-row sm:gap-4 mt-5">
+      <div class="w-full flex flex-col sm:flex-row sm:gap-4 mt-5">
         <div v-for="group in state.budgetItemGroups" :key="group.type" class="w-full mb-4">
           <IonCard class="ion-padding">
             <IonCardSubtitle>
@@ -138,6 +151,8 @@ import { renderTypeHeader } from "../../api/budget-items/utils";
 import { BudgetMonthApi, TBudgetMonth } from "../../api/budget-months/api";
 import { formatCurrency } from "../../api/utils/common";
 import { useBudget } from "../../composables/useBudget";
+import { useAppStore } from "../../store";
+import { supabase } from "../../supabase";
 import BudgetItemCreate from "./BudgetItemCreate.vue";
 import EditBudgetItem from "./EditBudgetItem.vue";
 
@@ -166,6 +181,7 @@ const modal = ref();
 const budgetMonthApi: BudgetMonthApi = new BudgetMonthApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const expenseApi: BudgetExpenseApi = new BudgetExpenseApi();
+const appStore = useAppStore();
 const state: TState = reactive({
   budgetExpenses: [],
   budgetItemGroups: [],
@@ -309,6 +325,37 @@ async function fetchBudgetItems(): Promise<void> {
 function monthYearToDate(value: string): Date {
   const [year, month] = value.split("-").map(Number); // "2025-09" -> [2025, 9]
   return new Date(year, month - 1, 1); // first day of that month (local time)
+}
+
+async function createBudget(): Promise<void> {
+  try {
+    state.loading.creatingBudget = true;
+    const houseId = appStore.state.houseId;
+    const { error } = await supabase.functions.invoke("create-budget", {
+      body: { houseId, month: state.selectedMonth },
+    });
+
+    if (error) {
+      console.error("Supabase error creating budget:", error);
+      return;
+    }
+
+    const month = getMonthString(state.selectedMonth);
+    const result = await budgetMonthApi.getBudgetMonth({ month });
+    const expenses = await expenseApi.getAllMonthlyExpenses({
+      budgetMonthId: result.id,
+    });
+    state.budgetExpenses = expenses;
+
+    if (result) {
+      state.budgetMonth = result;
+      const items = await budgetItemApi.getBudgetItems(result.id);
+      state.budgetItems = items;
+      state.budgetItemGroups = groupBudgetItems(items);
+    }
+  } finally {
+    state.loading.creatingBudget = false;
+  }
 }
 
 function groupBudgetItems(
