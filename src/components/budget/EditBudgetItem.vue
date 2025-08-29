@@ -5,7 +5,7 @@
         <p class="text-sm" v-text="budgetItem.name" />
         <p class="text-sm" :class="[isOverBudget && 'text-red-500']" v-text="formatCurrency(renderTabViewForAmount)" />
       </div>
-      <IonProgressBar :value="setProgressWidth()" :color="setProgressColor()" />
+      <IonProgressBar :value="setProgressWidth() / 100" :color="setProgressColor()" />
     </button>
 
     <BudgetItemSheet

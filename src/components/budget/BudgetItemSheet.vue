@@ -75,7 +75,7 @@
     </IonContent>
     <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
     <IonFab slot="fixed" vertical="bottom" horizontal="end">
-      <IonFabButton @click="createExpense">
+      <IonFabButton @click="createExpense()">
         <IonIcon :icon="add" />
       </IonFabButton>
     </IonFab>
@@ -84,6 +84,14 @@
       v-if="state.closeExpenseWrapper"
       :open="state.openExpense"
       :expense="state.selectedExpense"
+      @update:close="closeExpenseModal"
+      @update:expenses="fetchExpenses"
+    />
+
+    <ExpenseCreate
+      :open="state.openCreateExpense"
+      :month-id="budgetItem.budget_month_id"
+      :budget-item-id="budgetItem.id"
       @update:close="closeExpenseModal"
       @update:expenses="fetchExpenses"
     />
@@ -122,6 +130,7 @@ import { useActionSheet } from "../../composables/useActionSheet";
 import { getTotal } from "../../composables/useBudget";
 import { useMoneyInput } from "../../composables/useMoneyInput";
 import { useToast } from "../../composables/useToast";
+import ExpenseCreate from "./ExpenseCreate.vue";
 import ExpenseItemEdit from "./ExpenseItemEdit.vue";
 
 const props = defineProps({
@@ -153,6 +162,7 @@ type TState = {
     createOrEditBudgetItem: boolean;
     delete: boolean;
   };
+  openCreateExpense: boolean;
   openExpense: boolean;
   selectedExpense: TBudgetExpenseRow | null;
 };
@@ -172,6 +182,7 @@ const state: TState = reactive({
     createOrEditBudgetItem: false,
     delete: false,
   },
+  openCreateExpense: false,
   openExpense: false,
   selectedExpense: null,
 });
@@ -225,6 +236,7 @@ function closeModal(): void {
 
 function closeExpenseModal(): void {
   state.openExpense = false;
+  state.openCreateExpense = false;
   state.selectedExpense = null;
 
   setTimeout(() => {
@@ -238,6 +250,7 @@ async function fetchExpenses(): Promise<void> {
   });
   state.selectedExpense = null;
   state.openExpense = false;
+  state.openCreateExpense = false;
 }
 
 async function saveItem(): Promise<void> {
@@ -246,6 +259,7 @@ async function saveItem(): Promise<void> {
   }
 
   const valid = await $v.value.$validate();
+  console.log("Valid", $v.value.$errors);
   if (!valid) {
     if ($v.value.state.form.amount.$error) {
       await presentToast("Please enter a valid amount", {
@@ -293,7 +307,7 @@ async function deleteBudgetItem(): Promise<void> {
 }
 
 function createExpense(): void {
-  console.log("Create Expense");
+  state.openCreateExpense = true;
 }
 
 function editExpense(expense: TBudgetExpenseRow): void {

@@ -26,8 +26,8 @@
           :value="formattedAmount"
           type="text"
           inputmode="numeric"
-          placeholder="Enter budget item amount"
-          label="Budget Amount"
+          placeholder="Enter expense item amount"
+          label="Expense Amount"
           label-placement="stacked"
           error-text="Required"
           @ion-blur="handleBlur"
@@ -75,8 +75,9 @@ import { useToast } from "../../composables/useToast";
 
 const props = defineProps({
   expense: {
+    default: null,
     required: true,
-    type: Object as PropType<TBudgetExpenseRow>,
+    type: Object as PropType<TBudgetExpenseRow | null>,
   },
   open: {
     default: false,
@@ -167,7 +168,7 @@ async function saveExpense(): Promise<void> {
     }
 
     if ($v.value.state.form.name.$error) {
-      await presentToast("Please enter a valid budget name at the top", {
+      await presentToast("Please enter a valid expense name", {
         color: "danger",
         placement: "bottom",
       });
