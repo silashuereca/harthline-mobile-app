@@ -118,6 +118,7 @@ import {
 import { TBudgetItem } from "../../api/budget-items/api";
 import { BudgetItemApi } from "../../api/budget-items/api";
 import { formatCurrency, formatDate } from "../../api/utils/common";
+import { useActionSheet } from "../../composables/useActionSheet";
 import { getTotal } from "../../composables/useBudget";
 import { useMoneyInput } from "../../composables/useMoneyInput";
 import { useToast } from "../../composables/useToast";
@@ -156,6 +157,7 @@ type TState = {
   selectedExpense: TBudgetExpenseRow | null;
 };
 
+const { confirmDelete } = useActionSheet();
 const budgetExpenseApi: BudgetExpenseApi = new BudgetExpenseApi();
 const budgetItemApi: BudgetItemApi = new BudgetItemApi();
 const { presentToast } = useToast();
@@ -277,6 +279,8 @@ async function saveItem(): Promise<void> {
 
 async function deleteBudgetItem(): Promise<void> {
   if (state.loading.delete) return;
+  const confirmAction = await confirmDelete();
+  if (!confirmAction) return;
 
   try {
     await budgetItemApi.deleteBudgetItem({
