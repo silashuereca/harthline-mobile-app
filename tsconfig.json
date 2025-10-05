@@ -9,5 +9,13 @@
     "resolveJsonModule": true,
     "target": "esnext",
     "types": ["vite/client"],
-  }
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.vue",
+    "src/**/*.d.ts"
+  ],
+  "exclude": ["supabase/functions"]
 }
