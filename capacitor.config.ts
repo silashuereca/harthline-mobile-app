@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 const config: CapacitorConfig = {
-  appId: "app.harthline",
+  appId: "app.harthline.io",
   appName: "harthline",
   webDir: "dist",
 };
