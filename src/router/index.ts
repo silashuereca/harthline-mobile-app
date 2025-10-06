@@ -28,21 +28,30 @@ router.beforeEach(async (to) => {
   const { data } = await supabase.auth.getSession();
   const isAuthed = !!data.session;
 
-  if (!isAuthed && to.path !== "/auth") {
-    return { path: "/auth", replace: true };
-  } else if (!isAuthed) {
+  if (!isAuthed) {
+    // Allow the auth screen to render when the user is logged out.
+    if (to.path === "/auth") {
+      return true;
+    }
+
     return { path: "/auth", replace: true };
   }
 
   const { setHouseId } = useAppStore();
-  const settings = await supabase.from("settings").select("*").single();
-  setHouseId(settings.data?.selected_house_id);
+  const { data: settingsData } = await supabase
+    .from("settings")
+    .select("*")
+    .single();
 
-  // Authed → keep them out of /auth
+  const selectedHouseId = settingsData?.selected_house_id;
+  if (typeof selectedHouseId === "number") {
+    setHouseId(selectedHouseId);
+  }
+
   if (to.path === "/auth") {
     return {
       name: "home",
-      params: { houseId: settings.data?.selected_house_id },
+      params: { houseId: selectedHouseId },
       replace: true,
     };
   }
@@ -50,7 +59,7 @@ router.beforeEach(async (to) => {
   if (to.path === "/app") {
     return {
       name: "home",
-      params: { houseId: settings.data?.selected_house_id },
+      params: { houseId: selectedHouseId },
       replace: true,
     };
   }
