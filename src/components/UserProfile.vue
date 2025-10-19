@@ -3,13 +3,34 @@
     <IonHeader>
       <IonToolbar>
         <div class="w-full flex items-center justify-center">
-          <p v-text="state.user?.user_metadata?.name" />
+          <p class="text-base font-medium">
+            Profile
+          </p>
         </div>
       </IonToolbar>
     </IonHeader>
 
-    <div class="p-4">
-      <IonButton size="small" shape="round" expand="full" @click="logout">
+    <div class="px-6 py-8 flex flex-col items-center gap-4 text-center">
+      <div
+        class="w-24 h-24 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center"
+      >
+        <img
+          :src="state.user?.user_metadata?.avatar_url"
+          alt="User avatar"
+          class="w-full h-full object-cover"
+        >
+      </div>
+
+      <p class="text-lg font-semibold" v-text="state.user?.user_metadata?.full_name" />
+      <p class="text-sm text-gray-500" v-text="state.user?.email" />
+
+      <IonButton
+        class=" dark:text-white"
+        size="small"
+        shape="round"
+        expand="full"
+        @click="logout"
+      >
         Logout
       </IonButton>
     </div>
@@ -41,4 +62,3 @@ async function logout() {
   ionRouter.replace({ name: "auth" });
 }
 </script>
-
