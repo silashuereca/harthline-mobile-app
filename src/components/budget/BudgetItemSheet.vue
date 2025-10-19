@@ -60,13 +60,13 @@
         </p>
         <div v-show="state.expenses.length">
           <button v-for="expense in state.expenses" :key="expense.id" class="w-full" @click="editExpense(expense)">
-            <div class="grid grid-cols-2 gap-2 border-b border-gray-200 mb-2 py-2">
+            <div class="grid grid-cols-2 gap-2 border-b border-gray-200 dark:border-white mb-2 py-2">
               <div class="text-left">
-                <p class="text-black font-medium" v-text="expense.name" />
+                <p class="text-black dark:text-white font-medium" v-text="expense.name" />
                 <p class="text-gray-500 text-xs mt-1" v-text="formatDate(expense.created_at)" />
               </div>
               <div class="flex items-center justify-end">
-                <p class="text-black" v-text="formatCurrency(expense.amount)" />
+                <p class="text-black dark:text-white" v-text="formatCurrency(expense.amount)" />
               </div>
             </div>
           </button>
