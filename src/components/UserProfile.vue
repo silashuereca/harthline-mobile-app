@@ -38,10 +38,9 @@ onMounted(async () => {
 });
 
 async function logout() {
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "global" });
   await router.push({ name: "auth" });
 }
 </script>
-
 
 
