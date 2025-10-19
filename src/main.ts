@@ -48,7 +48,8 @@ CapacitorApp.addListener("appUrlOpen", async ({ url }) => {
     const session = await supabase.auth.getSession();
     if (session?.data?.session) {
       const settings = await supabase.from("settings").select("*").single();
-      await router.push({
+      // Replace the auth route so the back gesture cannot return to it.
+      await router.replace({
         name: "home",
         params: { houseId: settings.data?.selected_house_id },
       });
