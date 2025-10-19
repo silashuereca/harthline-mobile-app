@@ -17,13 +17,12 @@
 </template>
 
 <script lang="ts" setup>
-import { IonButton, IonHeader, IonToolbar } from "@ionic/vue";
+import { IonButton, IonHeader, IonToolbar, useIonRouter } from "@ionic/vue";
 import { onMounted, reactive } from "vue";
-import { useRouter } from "vue-router";
 
 import { getUser, supabase, TAuthUser } from "../supabase";
 
-const router = useRouter();
+const ionRouter = useIonRouter();
 
 type TState = {
   user: TAuthUser | null;
@@ -39,8 +38,7 @@ onMounted(async () => {
 
 async function logout() {
   await supabase.auth.signOut({ scope: "global" });
-  await router.push({ name: "auth" });
+  ionRouter.replace({ name: "auth" });
 }
 </script>
-
 
