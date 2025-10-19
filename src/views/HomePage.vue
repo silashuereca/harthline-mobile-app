@@ -69,7 +69,9 @@ import IconUserCircle from "../icons/IconUserCircle.vue";
   gap: 6px;
   margin: 0 10px;
   font-weight: 500;
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
 }
 
 :deep(ion-tab-button:not(.tab-selected)) {
