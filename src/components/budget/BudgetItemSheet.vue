@@ -45,6 +45,16 @@
         />
       </IonList>
       <IonButton
+        class="mt-2"
+        color="primary"
+        size="small"
+        expand="full"
+        fill="outline"
+        @click="quickCreateExpense()"
+      >
+        Quick Expense
+      </IonButton>
+      <IonButton
         color="danger"
         size="small"
         expand="full"
@@ -92,6 +102,8 @@
       :open="state.openCreateExpense"
       :month-id="budgetItem.budget_month_id"
       :budget-item-id="budgetItem.id"
+      :prefill-amount="state.prefillExpense?.amount ?? null"
+      :prefill-name="state.prefillExpense?.name ?? null"
       @update:close="closeExpenseModal"
       @update:expenses="fetchExpenses"
     />
@@ -164,6 +176,10 @@ type TState = {
   };
   openCreateExpense: boolean;
   openExpense: boolean;
+  prefillExpense: {
+    amount: number;
+    name: string;
+  } | null;
   selectedExpense: TBudgetExpenseRow | null;
 };
 
@@ -184,6 +200,7 @@ const state: TState = reactive({
   },
   openCreateExpense: false,
   openExpense: false,
+  prefillExpense: null,
   selectedExpense: null,
 });
 
@@ -237,6 +254,7 @@ function closeModal(): void {
 function closeExpenseModal(): void {
   state.openExpense = false;
   state.openCreateExpense = false;
+  state.prefillExpense = null;
   state.selectedExpense = null;
 
   setTimeout(() => {
@@ -307,6 +325,7 @@ async function deleteBudgetItem(): Promise<void> {
 }
 
 function createExpense(): void {
+  state.prefillExpense = null;
   state.openCreateExpense = true;
 }
 
@@ -314,6 +333,14 @@ function editExpense(expense: TBudgetExpenseRow): void {
   state.selectedExpense = expense;
   state.openExpense = true;
   state.closeExpenseWrapper = true;
+}
+
+function quickCreateExpense(): void {
+  state.prefillExpense = {
+    amount: props.budgetItem?.budgeted_amount ?? 0,
+    name: props.budgetItem?.name ?? "",
+  };
+  state.openCreateExpense = true;
 }
 </script>
 
