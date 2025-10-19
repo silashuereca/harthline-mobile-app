@@ -114,7 +114,7 @@ import {
 } from "@ionic/vue";
 import useVuelidate from "@vuelidate/core";
 import { required } from "@vuelidate/validators";
-import { computed, ComputedRef, reactive, watch } from "vue";
+import { computed, ComputedRef, PropType, reactive, watch } from "vue";
 
 import { BudgetExpenseApi } from "../../api/budget-expenses/api";
 import { BudgetItemApi, TBudgetItem } from "../../api/budget-items/api";
@@ -133,6 +133,14 @@ const props = defineProps({
   open: {
     default: false,
     type: Boolean,
+  },
+  prefillAmount: {
+    default: null,
+    type: Number as PropType<number | null>,
+  },
+  prefillName: {
+    default: null,
+    type: String as PropType<string | null>,
   },
 });
 
@@ -192,15 +200,37 @@ const {
 
 watch(
   () => props.open,
-  async () => {
-    if (props.open) {
+  async (isOpen) => {
+    if (isOpen) {
       const budgetItems = await budgetItemApi.getBudgetItems(props.monthId);
       state.budgetItems = budgetItems.sort((a, b) =>
         a.name.localeCompare(b.name),
       );
+      setPrefillFields();
     }
   },
 );
+
+watch(
+  () => [props.prefillAmount, props.prefillName],
+  () => {
+    if (props.open) {
+      setPrefillFields();
+    }
+  },
+);
+
+function setPrefillFields(): void {
+  if (props.prefillName !== null && props.prefillName !== undefined) {
+    state.form.name = props.prefillName;
+  }
+  if (props.prefillAmount !== null && props.prefillAmount !== undefined) {
+    state.form.amount = formatAmountOnMount(props.prefillAmount);
+  }
+  if (state.splitTransaction) {
+    state.splitTransaction = null;
+  }
+}
 
 const rules = computed(() => {
   if (!props.open) return {};
@@ -314,6 +344,3 @@ async function createExpense(): Promise<void> {
   width: 100%;
 }
 </style>
-
-
-

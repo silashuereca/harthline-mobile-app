@@ -57,7 +57,9 @@
     <IonContent v-if="state.budgetItems.length" fullscreen force-overscroll class="ion-padding">
       <div v-show="state.tab === 'planned'" class="grid grid-cols-2 gap-2">
         <IonCard class="ion-padding">
-          <IonCardSubtitle>Income</IonCardSubtitle>
+          <IonCardSubtitle>
+            Income
+          </IonCardSubtitle>
           <IonCardTitle color="success">
             <p v-text="formatCurrency(totalIncome, { showCents: false })" />
           </IonCardTitle>
@@ -103,8 +105,8 @@
           <IonCard class="ion-padding">
             <IonCardSubtitle>
               <div class="w-full flex justify-between items-center">
-                <p class="font-bold text-gray-900" v-text="renderTypeHeader(group.type)" />
-                <p class="text-gray-600 text-[10px]" v-text="renderTabTitle(group.type)" />
+                <p class="font-bold" v-text="renderTypeHeader(group.type)" />
+                <p class="text-[10px]" v-text="renderTabTitle(group.type)" />
               </div>
             </IonCardSubtitle>
             <div class="mt-5">

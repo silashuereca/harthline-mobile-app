@@ -32,6 +32,9 @@ export function useAuth() {
     // Native flow uses system browser; Capacitor will bounce back to our app
     const { data, error } = await supabase.auth.signInWithOAuth({
       options: {
+        queryParams: {
+          prompt: "select_account",
+        },
         redirectTo,
         skipBrowserRedirect: false,
       },
@@ -41,7 +44,8 @@ export function useAuth() {
     return data;
   };
 
-  const signOut = () => supabase.auth.signOut();
+  const signOut = (scope: "global" | "local" = "global") =>
+    supabase.auth.signOut({ scope });
 
   return {
     refresh: load,
