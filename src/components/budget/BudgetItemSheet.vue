@@ -255,11 +255,11 @@ function closeExpenseModal(): void {
   state.openExpense = false;
   state.openCreateExpense = false;
   state.prefillExpense = null;
-  state.selectedExpense = null;
 
   setTimeout(() => {
     state.closeExpenseWrapper = false;
-  }, 200);
+    state.selectedExpense = null;
+  }, 300);
 }
 
 async function fetchExpenses(): Promise<void> {
@@ -277,7 +277,6 @@ async function saveItem(): Promise<void> {
   }
 
   const valid = await $v.value.$validate();
-  console.log("Valid", $v.value.$errors);
   if (!valid) {
     if ($v.value.state.form.amount.$error) {
       await presentToast("Please enter a valid amount", {

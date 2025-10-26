@@ -55,7 +55,11 @@
     <IonFooter>
       <IonToolbar>
         <div class="flex justify-between w-full px-2">
-          <IonButton expand="block" fill="clear" color="medium" @click="closeModal()">
+          <IonButton
+            expand="block"
+            fill="clear"
+            @click="closeModal()"
+          >
             Cancel
           </IonButton>
           <IonButton
@@ -200,6 +204,7 @@ watch(
       resetForm();
     }
   },
+  { immediate: true },
 );
 
 watch(
