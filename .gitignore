@@ -31,4 +31,5 @@ npm-debug.log*
 /plugins
 /www
 /.env
+/supabase/.env
 /supabase/functions/.env
