@@ -3,7 +3,7 @@ import { View, Text, StyleSheet } from 'react-native';
 export default function Tab() {
   return (
     <View style={styles.container}>
-      <Text>Harthline</Text>
+      <Text>Profile</Text>
     </View>
   );
 }
@@ -15,4 +15,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-
