@@ -2,12 +2,14 @@ import { Tabs } from 'expo-router';
 import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { ComponentProps } from 'react';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const tabRoutes = state.routes.filter((route) => ['index', 'budget', 'profile'].includes(route.name))
   return (
     <View style={styles.tabBarContainer}>
       <View style={styles.tabBar}>
-        {state.routes.map((route, index) => {
+        {tabRoutes.map((route, index) => {
           const { options } = descriptors[route.key];
           const label = options.tabBarLabel ?? options.title ?? route.name;
           const isFocused = state.index === index;
@@ -23,7 +25,18 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             }
           };
 
-          const iconName = route.name === 'index' ? 'home' : route.name === 'budget' ? 'wallet' : 'person';
+          const iconName = (): ComponentProps<typeof Ionicons>['name'] => {
+            switch (route.name) {
+              case 'index':
+                return 'home';
+              case 'budget':
+                return 'wallet';
+              case 'profile':
+                return 'person';
+              default:
+                return 'ellipse';
+            }
+          };
 
 
           return (
@@ -33,7 +46,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               style={styles.tabItem}
             >
               <Ionicons
-                name={iconName}
+                name={iconName()}
                 size={22}
                 color={isFocused ? '#000' : '#8E8E93'}
               />
@@ -73,14 +86,10 @@ const styles = StyleSheet.create({
   },
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
+    backgroundColor: '#F8F8F8',
     borderRadius: 32,
     paddingHorizontal: 8,
     paddingVertical: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
     elevation: 4,
   },
   tabItem: {
