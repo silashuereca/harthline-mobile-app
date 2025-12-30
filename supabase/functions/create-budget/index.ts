@@ -1,5 +1,6 @@
-import { createClient } from "npm:@supabase/supabase-js";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { DateTime } from "npm:luxon";
+
 
 import { corsHeaders } from "../_shared/cores.ts";
 import { Database } from "../_shared/database-types.ts";

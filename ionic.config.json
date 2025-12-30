@@ -1,7 +1,0 @@
-{
-  "name": "app.harthline.io",
-  "integrations": {
-    "capacitor": {}
-  },
-  "type": "vue-vite"
-}
