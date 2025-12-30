@@ -1,21 +1,17 @@
 {
+  "extends": "expo/tsconfig.base",
   "compilerOptions": {
-    "allowJs": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "lib": ["esnext", "dom"],
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "target": "esnext",
-    "types": ["vite/client"],
-    "allowImportingTsExtensions": true
+    "strict": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    }
   },
   "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "src/**/*.d.ts"
-  ],
-  "exclude": ["supabase/functions"]
+    "**/*.ts",
+    "**/*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ]
 }
