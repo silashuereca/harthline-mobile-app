@@ -1,111 +1,81 @@
-import { Tabs } from 'expo-router';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { ComponentProps } from 'react';
+import { Slot, useRouter, useSegments } from 'expo-router';
+import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import { useEffect } from 'react';
+import * as Linking from 'expo-linking';
+import { handleAuthCallback } from '../supabase';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 
-function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
-  const tabRoutes = state.routes.filter((route) => ['index', 'budget', 'profile'].includes(route.name))
-  return (
-    <View style={styles.tabBarContainer}>
-      <View style={styles.tabBar}>
-        {tabRoutes.map((route, index) => {
-          const { options } = descriptors[route.key];
-          const label = options.tabBarLabel ?? options.title ?? route.name;
-          const isFocused = state.index === index;
+function useProtectedRoute() {
+  const { user, isLoading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
 
-          const onPress = () => {
-            const event = navigation.emit({
-              type: 'tabPress',
-              target: route.key,
-              canPreventDefault: true,
-            });
-            if (!isFocused && !event.defaultPrevented) {
-              navigation.navigate(route.name);
-            }
-          };
+  useEffect(() => {
+    if (isLoading) return;
 
-          const iconName = (): ComponentProps<typeof Ionicons>['name'] => {
-            switch (route.name) {
-              case 'index':
-                return 'home';
-              case 'budget':
-                return 'wallet';
-              case 'profile':
-                return 'person';
-              default:
-                return 'ellipse';
-            }
-          };
+    const inAuthGroup = segments[0] === 'signin';
 
+    if (!user && !inAuthGroup) {
+      router.replace('/signin');
+    } else if (user && inAuthGroup) {
+      router.replace('/');
+    }
+  }, [user, isLoading, segments, router]);
 
-          return (
-            <TouchableOpacity
-              key={route.key}
-              onPress={onPress}
-              style={styles.tabItem}
-            >
-              <Ionicons
-                name={iconName()}
-                size={22}
-                color={isFocused ? '#000' : '#8E8E93'}
-              />
-              <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
-                {String(label)}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </View>
-  );
+  return { user, isLoading };
 }
 
-export default function TabLayout() {
+function RootLayoutNav() {
+  const { isLoading } = useProtectedRoute();
+
+  useEffect(() => {
+    const handleDeepLink = async (event: { url: string }) => {
+      if (event.url.includes('auth/callback')) {
+        try {
+          await handleAuthCallback(event.url);
+        } catch (error) {
+          console.error('Auth callback error:', error);
+        }
+      }
+    };
+
+    const subscription = Linking.addEventListener('url', handleDeepLink);
+
+    Linking.getInitialURL().then((url) => {
+      if (url) {
+        handleDeepLink({ url });
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  if (isLoading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#000" />
+      </View>
+    );
+  }
+
+  return <Slot />;
+}
+
+export default function RootLayout() {
   return (
-    <Tabs
-      tabBar={(props) => <CustomTabBar {...props} />}
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Tabs.Screen name="index" options={{ title: 'Home' }} />
-      <Tabs.Screen name="budget" options={{ title: 'Budget' }} />
-      <Tabs.Screen name="profile" options={{ title: 'Profile' }} />
-    </Tabs>
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
   );
 }
 
 const styles = StyleSheet.create({
-  tabBarContainer: {
-    position: 'absolute',
-    bottom: 40,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-  },
-  tabBar: {
-    flexDirection: 'row',
-    backgroundColor: '#F8F8F8',
-    borderRadius: 32,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
-    elevation: 4,
-  },
-  tabItem: {
-    alignItems: 'center',
+  loadingContainer: {
+    flex: 1,
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-  },
-  tabLabel: {
-    fontSize: 12,
-    marginTop: 4,
-    color: '#8E8E93',
-    fontWeight: '500',
-  },
-  tabLabelActive: {
-    color: '#000',
+    alignItems: 'center',
   },
 });
 
