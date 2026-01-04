@@ -1,9 +1,10 @@
 import { createClient, User } from "@supabase/supabase-js";
+import Constants from "expo-constants";
 
 import { Database } from "../supabase/functions/_shared/database-types";
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl;
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabaseAnonKey;
 export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
   auth: {
     detectSessionInUrl: false,
