@@ -3,18 +3,20 @@ import { ExpoConfig, ConfigContext } from "expo/config";
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: "react-native-app",
-  slug: "react-native-app",
+  name: "Harthline",
+  slug: "harthline",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
-  scheme: "reactnativeapp",
+  scheme: "harthline",
   userInterfaceStyle: "automatic",
   newArchEnabled: true,
   ios: {
-    supportsTablet: true,
+    supportsTablet: false,
+    bundleIdentifier: "io.harthline.app",
   },
   android: {
+    package: "io.harthline.app",
     adaptiveIcon: {
       backgroundColor: "#E6F4FE",
       foregroundImage: "./assets/images/android-icon-foreground.png",
