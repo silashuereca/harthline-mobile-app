@@ -17,8 +17,51 @@ export default function SignIn() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>harthline</Text>
-      <Text style={styles.subtitle}>Sign in to continue</Text>
+      {/* Decorative shapes header */}
+      <View style={styles.shapesContainer}>
+        {/* Left column - big circle */}
+        <View style={styles.leftColumn}>
+          <View style={styles.bigCircle} />
+        </View>
+        {/* Right column - circle with flat left edge */}
+        <View style={styles.rightColumn}>
+          <View style={styles.flatCircle} />
+        </View>
+      </View>
+
+      <View style={styles.shapesContainer}>
+        {/* Left column - big circle */}
+        <View style={styles.leftColumn}>
+          <View style={styles.halfCircleLeft} />
+        </View>
+        {/* Right column - circle with flat left edge */}
+        <View style={styles.rightColumn}>
+          <View style={styles.bigCircle} />
+        </View>
+      </View>
+
+      <View style={styles.shapesContainer}>
+        {/* Left column - big circle */}
+        <View style={styles.leftColumn}>
+          <View style={styles.bigCircle} />
+        </View>
+        {/* Right column - circle with flat left edge */}
+        <View style={styles.rightColumn}>
+          <View style={styles.halfCircleRight} />
+        </View>
+      </View>
+
+      {/* Spacer to push button to bottom */}
+      <View style={styles.spacer} />
+
+      {/* Heading and description */}
+      <Text style={styles.heading}>The heart of your daily life</Text>
+      <Text style={styles.description}>
+        Manage finances, plan meals, organize tasks, and communicate -- all in one simple, connected space.
+      </Text>
+
+
+      {/* Sign in button at bottom */}
       <TouchableOpacity style={styles.googleButton} onPress={handleSignIn}>
         <Ionicons name="logo-google" size={20} color="#fff" />
         <Text style={styles.googleButtonText}>Continue with Google</Text>
@@ -27,29 +70,86 @@ export default function SignIn() {
   );
 }
 
+const circleSize = 150;
+const halfCircleSize = circleSize / 2;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
+    backgroundColor: '#F5F5F5',
+    paddingHorizontal: 40,
+    paddingTop: 80,
+    paddingBottom: 60,
   },
-  title: {
-    fontSize: 32,
+  shapesContainer: {
+    flexDirection: 'row',
+    gap: 0,
+    marginBottom: 24,
+  },
+  leftColumn: {
+    flex: 1,
+  },
+  rightColumn: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  bigCircle: {
+    width: circleSize,
+    height: circleSize,
+    borderRadius: halfCircleSize,
+    backgroundColor: '#FFF',
+  },
+  flatCircle: {
+    width: circleSize,
+    height: circleSize,
+    backgroundColor: '#E8E8E8',
+    borderTopRightRadius: halfCircleSize,
+    borderBottomRightRadius: 0,
+    borderTopLeftRadius: halfCircleSize,
+    borderBottomLeftRadius: halfCircleSize,
+  },
+  halfCircleLeft: {
+    width: circleSize,
+    height: circleSize,
+    backgroundColor: '#E8E8E8',
+    borderTopRightRadius: halfCircleSize,
+    borderBottomRightRadius: halfCircleSize,
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+  },
+  halfCircleRight: {
+    width: circleSize,
+    height: circleSize,
+    backgroundColor: '#E8E8E8',
+    borderTopLeftRadius: 0,
+    borderBottomLeftRadius: 0,
+    borderTopRightRadius: halfCircleSize,
+    borderBottomRightRadius: halfCircleSize,
+  },
+  spacer: {
+    flex: 1,
+  },
+  heading: {
+    fontSize: 27,
     fontWeight: '600',
-    marginBottom: 8,
+    color: '#000',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 16,
-    color: '#8E8E93',
+  description: {
+    fontSize: 14,
+    color: '#242323ff',
+    lineHeight: 22,
     marginBottom: 32,
+    paddingHorizontal: 14,
+    textAlign: 'center',
   },
   googleButton: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     backgroundColor: '#000',
-    paddingVertical: 14,
+    paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 24,
     gap: 8,
