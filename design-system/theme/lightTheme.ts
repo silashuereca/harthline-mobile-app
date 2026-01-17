@@ -23,11 +23,11 @@ const lightColors: ThemeColors = {
   border: palette.neutral200,
   borderLight: palette.neutral100,
 
-  // Primary
-  primary: palette.primary600,
-  primaryText: palette.neutral0,
-  primaryHover: palette.primary700,
-  primaryDisabled: palette.primary200,
+  // Primary - Brand color #FAC722
+  primary: '#FAC722',
+  primaryText: '#000000', // Dark text for better contrast on yellow
+  primaryHover: '#E5B31F', // Slightly darker on press
+  primaryDisabled: '#FDE9A8', // Lighter/faded yellow
 
   // Secondary
   secondary: palette.secondary600,

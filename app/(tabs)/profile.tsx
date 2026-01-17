@@ -87,7 +87,6 @@ const useStyles = createThemedStyles((theme) => ({
     marginBottom: 24,
   },
   logoutButton: {
-    backgroundColor: '#000',
     borderRadius: 24,
   },
 }));

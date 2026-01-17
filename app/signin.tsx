@@ -69,7 +69,7 @@ export default function SignIn() {
         variant="primary"
         onPress={handleSignIn}
         style={styles.googleButton}
-        icon={<Ionicons name="logo-google" size={20} color="#fff" />}
+        icon={<Ionicons name="logo-google" size={20} color="#000" />}
       >
         Continue with Google
       </AppButton>
@@ -152,7 +152,6 @@ const useStyles = createThemedStyles((theme) => ({
     textAlign: 'center',
   },
   googleButton: {
-    backgroundColor: '#000',
     borderRadius: 24,
   },
 }));

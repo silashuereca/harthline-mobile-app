@@ -23,11 +23,11 @@ const darkColors: ThemeColors = {
   border: palette.neutral700,
   borderLight: palette.neutral800,
 
-  // Primary
-  primary: palette.primary500,
-  primaryText: palette.neutral0,
-  primaryHover: palette.primary400,
-  primaryDisabled: palette.primary900,
+  // Primary - Brand color #FAC722
+  primary: '#FAC722',
+  primaryText: '#000000', // Dark text for better contrast on yellow
+  primaryHover: '#E5B31F', // Slightly darker on press
+  primaryDisabled: '#8A7419', // Darker/muted yellow for dark mode
 
   // Secondary
   secondary: palette.secondary500,
