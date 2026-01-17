@@ -23,11 +23,11 @@ const darkColors: ThemeColors = {
   border: palette.neutral700,
   borderLight: palette.neutral800,
 
-  // Primary
-  primary: palette.primary500,
-  primaryText: palette.neutral0,
-  primaryHover: palette.primary400,
-  primaryDisabled: palette.primary900,
+  // Primary - Brand color #FAC722
+  primary: '#FAC722',
+  primaryText: '#000000', // Dark text for better contrast on yellow
+  primaryHover: '#E5B31F', // Slightly darker on press
+  primaryDisabled: '#8A7419', // Darker/muted yellow for dark mode
 
   // Secondary
   secondary: palette.secondary500,
@@ -37,15 +37,15 @@ const darkColors: ThemeColors = {
   // Status
   success: palette.success500,
   successText: palette.neutral0,
-  successBackground: palette.success900,
+  successBackground: palette.success700,
 
   danger: palette.danger500,
   dangerText: palette.neutral0,
-  dangerBackground: palette.danger900,
+  dangerBackground: palette.danger700,
 
   warning: palette.warning500,
   warningText: palette.neutral900,
-  warningBackground: palette.warning900,
+  warningBackground: palette.warning700,
 };
 
 export const darkTheme: Theme = {

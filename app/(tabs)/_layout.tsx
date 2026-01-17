@@ -1,10 +1,13 @@
 import { Tabs } from 'expo-router';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { ComponentProps } from 'react';
+import { useTheme, createThemedStyles, AppText } from '../../design-system';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
   return (
     <View style={styles.tabBarContainer}>
       <View style={styles.tabBar}>
@@ -46,11 +49,11 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               <Ionicons
                 name={iconName()}
                 size={22}
-                color={isFocused ? '#000' : '#8E8E93'}
+                color={isFocused ? theme.colors.primary : '#000'}
               />
-              <Text style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
+              <AppText style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
                 {String(label)}
-              </Text>
+              </AppText>
             </TouchableOpacity>
           );
         })}
@@ -74,7 +77,7 @@ export default function TabsLayout() {
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((theme) => ({
   tabBarContainer: {
     position: 'absolute',
     bottom: 40,
@@ -99,10 +102,10 @@ const styles = StyleSheet.create({
   tabLabel: {
     fontSize: 12,
     marginTop: 4,
-    color: '#8E8E93',
+    color: '#000',
     fontWeight: '500',
   },
   tabLabelActive: {
-    color: '#000',
+    color: theme.colors.primary,
   },
-});
+}));

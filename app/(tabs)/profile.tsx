@@ -1,10 +1,13 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { signOut } from '../../supabase';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTheme, createThemedStyles, AppText, AppButton } from '../../design-system';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
 
   const handleSignOut = async () => {
     try {
@@ -20,7 +23,7 @@ export default function ProfileScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Profile</Text>
+      <AppText style={styles.header} weight="semiBold">Profile</AppText>
       <View style={styles.avatarContainer}>
         {user.user_metadata?.avatar_url ? (
           <Image
@@ -33,25 +36,29 @@ export default function ProfileScreen() {
           </View>
         )}
       </View>
-      <Text style={styles.name}>{user.user_metadata?.full_name || 'User'}</Text>
-      <Text style={styles.email}>{user.email}</Text>
-      <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-        <Text style={styles.logoutButtonText}>Logout</Text>
-      </TouchableOpacity>
+      <AppText style={styles.name} weight="semiBold">{user.user_metadata?.full_name || 'User'}</AppText>
+      <AppText style={styles.email} color="muted">{user.email}</AppText>
+      <AppButton
+        variant="primary"
+        onPress={handleSignOut}
+        style={styles.logoutButton}
+      >
+        Logout
+      </AppButton>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((theme) => ({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 24,
+    backgroundColor: theme.colors.background,
   },
   header: {
     fontSize: 18,
-    fontWeight: '600',
     position: 'absolute',
     top: 60,
   },
@@ -73,23 +80,13 @@ const styles = StyleSheet.create({
   },
   name: {
     fontSize: 20,
-    fontWeight: '600',
     marginBottom: 4,
   },
   email: {
     fontSize: 14,
-    color: '#8E8E93',
     marginBottom: 24,
   },
   logoutButton: {
-    backgroundColor: '#000',
-    paddingVertical: 12,
-    paddingHorizontal: 32,
     borderRadius: 24,
   },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
+}));
