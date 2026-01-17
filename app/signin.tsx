@@ -1,9 +1,13 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as Linking from 'expo-linking';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { View } from 'react-native';
 import { signInWithGoogle } from '../supabase';
+import { useTheme, createThemedStyles, AppText, AppButton } from '../design-system';
 
 export default function SignIn() {
+  const { theme } = useTheme();
+  const styles = useStyles(theme);
+
   const handleSignIn = async () => {
     try {
       // createURL generates the correct redirect for both Expo Go and standalone builds
@@ -55,17 +59,20 @@ export default function SignIn() {
       <View style={styles.spacer} />
 
       {/* Heading and description */}
-      <Text style={styles.heading}>The heart of your daily life</Text>
-      <Text style={styles.description}>
+      <AppText style={styles.heading}>The heart of your daily life</AppText>
+      <AppText style={styles.description}>
         Manage finances, plan meals, organize tasks, and communicate -- all in one simple, connected space.
-      </Text>
-
+      </AppText>
 
       {/* Sign in button at bottom */}
-      <TouchableOpacity style={styles.googleButton} onPress={handleSignIn}>
-        <Ionicons name="logo-google" size={20} color="#fff" />
-        <Text style={styles.googleButtonText}>Continue with Google</Text>
-      </TouchableOpacity>
+      <AppButton
+        variant="primary"
+        onPress={handleSignIn}
+        style={styles.googleButton}
+        icon={<Ionicons name="logo-google" size={20} color="#fff" />}
+      >
+        Continue with Google
+      </AppButton>
     </View>
   );
 }
@@ -73,7 +80,7 @@ export default function SignIn() {
 const circleSize = 150;
 const halfCircleSize = circleSize / 2;
 
-const styles = StyleSheet.create({
+const useStyles = createThemedStyles((theme) => ({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
@@ -138,25 +145,14 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#242323ff',
+    color: '#242323',
     lineHeight: 22,
     marginBottom: 32,
     paddingHorizontal: 14,
     textAlign: 'center',
   },
   googleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#000',
-    paddingVertical: 10,
-    paddingHorizontal: 24,
     borderRadius: 24,
-    gap: 8,
   },
-  googleButtonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-});
+}));

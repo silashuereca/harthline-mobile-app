@@ -18,6 +18,8 @@ interface AppButtonProps extends Omit<PressableProps, 'style'> {
   fullWidth?: boolean;
   children: string;
   style?: ViewStyle;
+  icon?: React.ReactNode;
+  iconPosition?: 'left' | 'right';
 }
 
 /**
@@ -30,6 +32,9 @@ interface AppButtonProps extends Omit<PressableProps, 'style'> {
  *   Submit
  * </AppButton>
  * <AppButton variant="ghost" loading>Loading...</AppButton>
+ * <AppButton variant="primary" icon={<Icon name="logo-google" />}>
+ *   Sign in with Google
+ * </AppButton>
  */
 export function AppButton({
   variant = 'primary',
@@ -39,6 +44,8 @@ export function AppButton({
   disabled,
   style,
   children,
+  icon,
+  iconPosition = 'left',
   ...rest
 }: AppButtonProps) {
   const { theme } = useTheme();
@@ -111,6 +118,7 @@ export function AppButton({
           borderRadius: theme.radius.lg,
           width: fullWidth ? '100%' : undefined,
           opacity: isDisabled ? 0.5 : 1,
+          gap: icon ? 8 : 0,
         },
         variant === 'ghost' && {
           borderWidth: 1,
@@ -130,15 +138,19 @@ export function AppButton({
             size="small"
           />
         ) : (
-          <AppText
-            style={{
-              fontSize: sizeConfig.fontSize,
-              color: getVariantConfig(pressed).textColor,
-            }}
-            weight="semiBold"
-          >
-            {children}
-          </AppText>
+          <>
+            {icon && iconPosition === 'left' && icon}
+            <AppText
+              style={{
+                fontSize: sizeConfig.fontSize,
+                color: getVariantConfig(pressed).textColor,
+              }}
+              weight="semiBold"
+            >
+              {children}
+            </AppText>
+            {icon && iconPosition === 'right' && icon}
+          </>
         )
       }
     </Pressable>
