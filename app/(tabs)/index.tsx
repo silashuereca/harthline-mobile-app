@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../contexts/AuthContext';
 import { AppCard, AppText, createThemedStyles, Spacer, UserAvatar, useTheme } from '../../design-system';
 
@@ -13,6 +14,12 @@ export default function Tab() {
     if (!fullName) return 'User';
     return fullName.split(' ')[0];
   };
+
+  // Mock expense data
+  const expenses = [
+    { id: 1, name: 'Groceries', amount: 125.50 },
+    { id: 2, name: 'Gas', amount: 45.00 },
+  ];
 
   return (
     <View style={styles.container}>
@@ -75,6 +82,31 @@ export default function Tab() {
             </AppText>
           </View>
         </AppCard>
+        <Spacer size="xl" />
+        <View style={styles.activityCard}>
+          <AppText variant="caption" weight="semiBold" style={styles.activityHeader}>
+            Last Activity
+          </AppText>
+          {expenses.map((expense, index) => (
+            <View
+              key={expense.id}
+              style={[
+                styles.expenseItem,
+                index === expenses.length - 1 && styles.expenseItemLast,
+              ]}
+            >
+              <View style={styles.expenseLeft}>
+                <Ionicons name="receipt" size={16} color="#FFD700" />
+                <AppText variant="label" style={styles.expenseName} numberOfLines={1}>
+                  {expense.name}
+                </AppText>
+              </View>
+              <AppText variant="label" style={styles.expenseAmount}>
+                ${expense.amount.toFixed(2)}
+              </AppText>
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -123,6 +155,43 @@ const useStyles = createThemedStyles((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+  },
+  activityCard: {
+    backgroundColor: 'transparent',
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
+    borderRadius: 12,
+    padding: 16,
+  },
+  activityHeader: {
+    marginBottom: 16,
+  },
+  expenseItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  expenseItemLast: {
+    borderBottomWidth: 0,
+  },
+  expenseLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+    minWidth: 0,
+  },
+  expenseName: {
+    color: '#888',
+    flex: 1,
+  },
+  expenseAmount: {
+    color: '#888',
+    marginLeft: 8,
+    flexShrink: 0,
   },
 }));
 
