@@ -1,8 +1,7 @@
-import { View, Image } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native';
 import { signOut } from '../../supabase';
 import { useAuth } from '../../contexts/AuthContext';
-import { useTheme, createThemedStyles, AppText, AppButton } from '../../design-system';
+import { useTheme, createThemedStyles, AppText, AppButton, UserAvatar } from '../../design-system';
 
 export default function ProfileScreen() {
   const { user } = useAuth();
@@ -25,16 +24,7 @@ export default function ProfileScreen() {
     <View style={styles.container}>
       <AppText style={styles.header} weight="semiBold">Profile</AppText>
       <View style={styles.avatarContainer}>
-        {user.user_metadata?.avatar_url ? (
-          <Image
-            source={{ uri: user.user_metadata.avatar_url }}
-            style={styles.avatar}
-          />
-        ) : (
-          <View style={styles.avatarPlaceholder}>
-            <Ionicons name="person" size={40} color="#8E8E93" />
-          </View>
-        )}
+        <UserAvatar avatarUrl={user.user_metadata?.avatar_url} size="xl" />
       </View>
       <AppText style={styles.name} weight="semiBold">{user.user_metadata?.full_name || 'User'}</AppText>
       <AppText style={styles.email} color="muted">{user.email}</AppText>
@@ -64,19 +54,6 @@ const useStyles = createThemedStyles((theme) => ({
   },
   avatarContainer: {
     marginBottom: 16,
-  },
-  avatar: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-  },
-  avatarPlaceholder: {
-    width: 96,
-    height: 96,
-    borderRadius: 48,
-    backgroundColor: '#E5E5EA',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   name: {
     fontSize: 20,

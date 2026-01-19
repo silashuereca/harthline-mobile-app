@@ -3,3 +3,4 @@
 export { AppText } from './AppText';
 export { AppButton } from './AppButton';
 export { AppCard } from './AppCard';
+export { UserAvatar } from './UserAvatar';
