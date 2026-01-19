@@ -51,7 +51,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
                 size={22}
                 color={isFocused ? theme.colors.primary : '#000'}
               />
-              <AppText style={[styles.tabLabel, isFocused && styles.tabLabelActive]}>
+              <AppText style={styles.tabLabel}>
                 {String(label)}
               </AppText>
             </TouchableOpacity>
@@ -77,7 +77,7 @@ export default function TabsLayout() {
   );
 }
 
-const useStyles = createThemedStyles((theme) => ({
+const useStyles = createThemedStyles(() => ({
   tabBarContainer: {
     position: 'absolute',
     bottom: 40,
@@ -104,8 +104,5 @@ const useStyles = createThemedStyles((theme) => ({
     marginTop: 4,
     color: '#000',
     fontWeight: '500',
-  },
-  tabLabelActive: {
-    color: theme.colors.primary,
   },
 }));
