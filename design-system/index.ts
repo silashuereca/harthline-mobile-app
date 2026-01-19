@@ -9,7 +9,7 @@ export { useTheme } from './hooks/useTheme';
 export { ThemeProvider } from './hooks/ThemeProvider';
 
 // Components
-export { AppText, AppButton, AppCard } from './components';
+export { AppText, AppButton, AppCard, UserAvatar } from './components';
 
 // Utils
 export { createThemedStyles } from './utils/createThemedStyles';

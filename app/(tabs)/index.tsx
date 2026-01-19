@@ -1,7 +1,6 @@
-import { Ionicons } from '@expo/vector-icons';
-import { Image, View } from 'react-native';
+import { View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { AppText, createThemedStyles, useTheme } from '../../design-system';
+import { AppText, createThemedStyles, useTheme, UserAvatar } from '../../design-system';
 
 export default function Tab() {
   const { theme } = useTheme();
@@ -19,16 +18,7 @@ export default function Tab() {
     <View style={styles.container}>
       <View style={styles.header}>
         <View style={styles.profileSection}>
-          {user?.user_metadata?.avatar_url ? (
-            <Image
-              source={{ uri: user.user_metadata.avatar_url }}
-              style={styles.avatar}
-            />
-          ) : (
-            <View style={styles.avatarPlaceholder}>
-              <Ionicons name="person" size={20} color={theme.colors.textMuted} />
-            </View>
-          )}
+          <UserAvatar avatarUrl={user?.user_metadata?.avatar_url} size="md" />
           <AppText variant="subtitle" style={styles.welcomeText}>
             Welcome, {getFirstName()}
           </AppText>
@@ -55,19 +45,6 @@ const useStyles = createThemedStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-  },
-  avatarPlaceholder: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: theme.colors.surface,
-    justifyContent: 'center',
-    alignItems: 'center',
   },
   welcomeText: {
     flex: 1,
