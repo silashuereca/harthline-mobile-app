@@ -7,7 +7,7 @@ import { ShadowKey } from '../tokens/shadows';
 
 interface AppCardProps extends ViewProps {
   children: ReactNode;
-  variant?: 'elevated' | 'outlined' | 'flat';
+  variant?: 'elevated' | 'outlined' | 'flat' | 'rounded';
   shadow?: ShadowKey;
   onPress?: () => void;
 }
@@ -32,8 +32,8 @@ export function AppCard({
   const { theme } = useTheme();
 
   const baseStyle = {
-    backgroundColor: theme.colors.surface,
-    borderRadius: theme.radius.lg,
+    backgroundColor: variant === 'rounded' ? '#F5F5F5' : theme.colors.surface,
+    borderRadius: variant === 'rounded' ? 20 : theme.radius.lg,
     padding: theme.spacing.lg,
   };
 
@@ -45,6 +45,8 @@ export function AppCard({
           borderWidth: 1,
           borderColor: theme.colors.border,
         }
+      : variant === 'rounded'
+      ? {}
       : {};
 
   const cardStyle = [baseStyle, variantStyle, style];
