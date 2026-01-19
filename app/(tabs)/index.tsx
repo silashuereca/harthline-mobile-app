@@ -1,6 +1,6 @@
 import { View } from 'react-native';
 import { useAuth } from '../../contexts/AuthContext';
-import { AppText, createThemedStyles, useTheme, UserAvatar } from '../../design-system';
+import { AppCard, AppText, createThemedStyles, Spacer, UserAvatar, useTheme } from '../../design-system';
 
 export default function Tab() {
   const { theme } = useTheme();
@@ -25,7 +25,56 @@ export default function Tab() {
         </View>
       </View>
       <View style={styles.content}>
-        <AppText variant="title">Harthline</AppText>
+        <AppCard variant="rounded">
+          <AppText variant="caption" weight="semiBold" style={styles.cardTitle}>
+            Planned
+          </AppText>
+          <View style={styles.progressBarContainer}>
+            <View style={styles.progressBar} />
+          </View>
+          <View style={styles.cardFooter}>
+            <AppText variant="label" color="muted">
+              Progress
+            </AppText>
+            <AppText variant="caption" weight="semiBold">
+              $6000
+            </AppText>
+          </View>
+        </AppCard>
+        <Spacer size="lg" />
+        <AppCard variant="rounded">
+          <AppText variant="caption" weight="semiBold" style={styles.cardTitle}>
+            Spent
+          </AppText>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: '50%' }]} />
+          </View>
+          <View style={styles.cardFooter}>
+            <AppText variant="label" color="muted">
+              Progress
+            </AppText>
+            <AppText variant="caption" weight="semiBold">
+              50%
+            </AppText>
+          </View>
+        </AppCard>
+        <Spacer size="lg" />
+        <AppCard variant="rounded">
+          <AppText variant="caption" weight="semiBold" style={styles.cardTitle}>
+            Spent
+          </AppText>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: '80%' }]} />
+          </View>
+          <View style={styles.cardFooter}>
+            <AppText variant="label" color="muted">
+              Progress
+            </AppText>
+            <AppText variant="caption" weight="semiBold">
+              80%
+            </AppText>
+          </View>
+        </AppCard>
       </View>
     </View>
   );
@@ -51,7 +100,28 @@ const useStyles = createThemedStyles((theme) => ({
   },
   content: {
     flex: 1,
-    justifyContent: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 20,
+  },
+  cardTitle: {
+    marginBottom: 8,
+  },
+  progressBarContainer: {
+    height: 8,
+    backgroundColor: '#E0E0E0',
+    borderRadius: 4,
+    overflow: 'hidden',
+    marginBottom: 8,
+  },
+  progressBar: {
+    height: '100%',
+    width: '60%',
+    backgroundColor: theme.colors.primary,
+    borderRadius: 4,
+  },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
 }));

@@ -1,9 +1,9 @@
-import { Tabs } from 'expo-router';
-import { View, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { Tabs } from 'expo-router';
 import { ComponentProps } from 'react';
-import { useTheme, createThemedStyles, AppText } from '../../design-system';
+import { TouchableOpacity, View } from 'react-native';
+import { AppText, createThemedStyles, useTheme } from '../../design-system';
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const { theme } = useTheme();
@@ -48,7 +48,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             >
               <Ionicons
                 name={iconName()}
-                size={22}
+                size={18}
                 color={isFocused ? theme.colors.primary : '#000'}
               />
               <AppText style={styles.tabLabel}>
@@ -88,20 +88,20 @@ const useStyles = createThemedStyles(() => ({
   tabBar: {
     flexDirection: 'row',
     backgroundColor: '#F8F8F8',
-    borderRadius: 32,
-    paddingHorizontal: 8,
-    paddingVertical: 8,
+    borderRadius: 40,
+    paddingHorizontal: 12,
+    paddingVertical: 0,
     elevation: 4,
   },
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
   },
   tabLabel: {
-    fontSize: 12,
-    marginTop: 4,
+    fontSize: 10,
+    marginTop: 0,
     color: '#000',
     fontWeight: '500',
   },
